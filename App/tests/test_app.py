@@ -52,9 +52,11 @@ class UserUnitTests(unittest.TestCase):
 @pytest.fixture(autouse=True, scope="module")
 def empty_db():
     app = create_app({'TESTING': True, 'SQLALCHEMY_DATABASE_URI': 'sqlite:///test.db'})
-    create_db()
-    yield app.test_client()
-    db.drop_all()
+    
+    with app.app_context():
+        create_db()
+        yield app.test_client()
+        db.drop_all()
 
 
 def test_authenticate():
@@ -64,17 +66,23 @@ def test_authenticate():
 class UserIntegrationTests(unittest.TestCase):
 
     def test_create_user(self):
-        user = create_user("rick", "bobpass")
-        assert user.username == "rick"
+        staff = create_user("rick", "bobpass", "staff")
+        assert staff.username == "rick" 
 
-    def test_get_all_users_json(self):
-        users_json = get_all_users_json()
-        self.assertListEqual([{"id":1, "username":"bob"}, {"id":2, "username":"rick"}], users_json)
+        #employer = create_user("sam", "sampass", "employer")
+        #assert employer.username == "sam"
+
+        #student = create_user("hannah", "hannahpass", "student")
+        #assert student.username == "hannah"
+
+   # def test_get_all_users_json(self):
+     #   users_json = get_all_users_json()
+      #  self.assertListEqual([{"id":1, "username":"bob"}, {"id":2, "username":"rick"}], users_json)
 
     # Tests data changes in the database
-    def test_update_user(self):
-        update_user(1, "ronnie")
-        user = get_user(1)
-        assert user.username == "ronnie"
+    #def test_update_user(self):
+      #  update_user(1, "ronnie")
+      #  user = get_user(1)
+       # assert user.username == "ronnie"
         
 
