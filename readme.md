@@ -189,11 +189,11 @@ If you are adding models you may need to migrate the database with the commands 
 
 # Flask Commands for Assignment
 
-## flask user "username" "password" "type"
-    type: Which type of account. Choice between student, staff or employer
+## flask user "username" "password" "role"
+    role: Which type of account. Choice between student, staff or employer
     Creates a user account.
 
-## flask user add_position "title" "employer_id"
+## flask user create_position "title" "employer_id"
     title: Title of position
     employer_id: Id of employer
 
@@ -206,7 +206,7 @@ If you are adding models you may need to migrate the database with the commands 
 
     Staff member add a student to a position's shortlist
 
-## flask user decide_shortlist "student_id" "position_id"
+## flask user decide_shortlist "student_id" "position_id" 
     student_id: Id of Student
     position_id: Id of Position
 
