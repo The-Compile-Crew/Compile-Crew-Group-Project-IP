@@ -45,21 +45,17 @@ class ShortlistedState(ShortlistState):
 
 class AcceptedState(ShortlistState):
     def advance(self, context):
-        # TODO: no-op or raise exception
-        pass
+        raise Exception("Already accepted, cannot advance further")
 
     def accept(self, context):
-        # TODO: already accepted
-        pass
+        raise Exception("Already accepted")
 
     def reject(self, context):
-        # TODO: invalid action
-        pass
+        raise Exception("Cannot reject after acceptance")
 
     def get_status(self):
-        # TODO: return DecisionStatus.accepted
-        pass
-
+        return DecisionStatus.accepted
+    
 # Rejected State
 
 class RejectedState(ShortlistState):
