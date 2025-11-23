@@ -27,21 +27,22 @@ class AppliedState(ShortlistState):
 
 class ShortlistedState(ShortlistState):
     def advance(self, context):
-        # TODO: implement transition to AcceptedState
-        pass
+        from App.models.shortlist_states import AcceptedState
+        context.set_state(AcceptedState())
+        context.status = DecisionStatus.accepted
 
     def accept(self, context):
-        # TODO: implement transition to AcceptedState
-        pass
+        from App.models.shortlist_states import AcceptedState
+        context.set_state(AcceptedState())
+        context.status = DecisionStatus.accepted
 
     def reject(self, context):
-        # TODO: implement transition to RejectedState
-        pass
+        from App.models.shortlist_states import RejectedState
+        context.set_state(RejectedState())
+        context.status = DecisionStatus.rejected
 
     def get_status(self):
-        # TODO: return DecisionStatus.shortlisted
-        pass
-
+        return DecisionStatus.shortlisted
 
 # Accepted State
 
