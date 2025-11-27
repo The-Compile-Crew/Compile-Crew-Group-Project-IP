@@ -9,22 +9,22 @@ class AppliedState(ShortlistState):
     def advance(self, context):
         # TODO: implement transition to ShortlistedState
          context.state = ShortlistedState()
-    pass
+        pass
 
     def accept(self, context):
         # TODO: invalid action from Applied
          raise Exception("Cannot accept. Candidate must be shortlisted first.")
-    pass
+        pass
 
     def reject(self, context):
         # TODO: implement transition to RejectedState
          context.state = RejectedState()
-    pass
+        pass
 
     def get_status(self):
         # TODO: return DecisionStatus.applied
         return DecisionStatus.applied
-    pass
+        pass
 
 
 # Shortlisted State
