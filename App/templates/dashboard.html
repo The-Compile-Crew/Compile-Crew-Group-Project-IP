@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Applicant Tracking System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav li {
+            margin-left: 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .dashboard-title {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        /* Positions Column */
+        .positions-column {
+            flex: 0 0 350px;
+        }
+        
+        .positions-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .positions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .positions-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .create-position-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .create-position-btn:hover {
+            background-color: #219a52;
+        }
+        
+        .search-positions {
+            margin-bottom: 20px;
+        }
+        
+        .search-positions input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .positions-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .position-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .position-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .position-description {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .position-capacity {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .edit-position-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        .edit-position-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Shortlist Column */
+        .shortlist-column {
+            flex: 1;
+        }
+        
+        .shortlist-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .shortlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .shortlist-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .search-bar {
+            display: flex;
+            width: 300px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
+        }
+        
+        .search-bar button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        .students-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .student-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .student-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .student-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .status-applied {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .status-shortlisted {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .status-accepted {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .status-rejected {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-applied {
+            width: 25%;
+            background-color: #3498db;
+        }
+        
+        .progress-shortlisted {
+            width: 50%;
+            background-color: #f39c12;
+        }
+        
+        .progress-accepted {
+            width: 100%;
+            background-color: #27ae60;
+        }
+        
+        .progress-rejected {
+            width: 100%;
+            background-color: #e74c3c;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .review-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .review-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #34495e;
+        }
+        
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-save {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">Applicant Tracking System</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="#">All Applicants</a></li>
+                    <li><a href="#">Reports</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Positions Column -->
+        <div class="positions-column">
+            <div class="positions-box">
+                <div class="positions-header">
+                    <div class="positions-label">Positions</div>
+                    <button class="create-position-btn" id="createPositionBtn">Create Position</button>
+                </div>
+                
+                <div class="search-positions">
+                    <input type="text" placeholder="Search/filter positions...">
+                </div>
+                
+                <div class="positions-list">
+                    <div class="position-card">
+                        <div class="position-name">Frontend Developer</div>
+                        <div class="position-description">Develop user-facing features using React, JavaScript, and modern frontend technologies.</div>
+                        <div class="position-capacity">
+                            <span>Capacity: 3</span>
+                            <span>Filled: 1</span>
+                        </div>
+                        <button class="edit-position-btn">Edit Position</button>
+                    </div>
+                    
+                    <div class="position-card">
+                        <div class="position-name">UI/UX Designer</div>
+                        <div class="position-description">Create intuitive and engaging user interfaces and experiences for our products.</div>
+                        <div class="position-capacity">
+                            <span>Capacity: 2</span>
+                            <span>Filled: 0</span>
+                        </div>
+                        <button class="edit-position-btn">Edit Position</button>
+                    </div>
+                    
+                    <div class="position-card">
+                        <div class="position-name">Backend Developer</div>
+                        <div class="position-description">Build and maintain server-side logic, databases, and APIs for our applications.</div>
+                        <div class="position-capacity">
+                            <span>Capacity: 2</span>
+                            <span>Filled: 1</span>
+                        </div>
+                        <button class="edit-position-btn">Edit Position</button>
+                    </div>
+                    
+                    <div class="position-card">
+                        <div class="position-name">Product Manager</div>
+                        <div class="position-description">Define product vision, gather requirements, and guide products from conception to launch.</div>
+                        <div class="position-capacity">
+                            <span>Capacity: 1</span>
+                            <span>Filled: 0</span>
+                        </div>
+                        <button class="edit-position-btn">Edit Position</button>
+                    </div>
+                    
+                    <div class="position-card">
+                        <div class="position-name">Data Analyst</div>
+                        <div class="position-description">Analyze complex data sets to provide insights and support data-driven decision making.</div>
+                        <div class="position-capacity">
+                            <span>Capacity: 2</span>
+                            <span>Filled: 0</span>
+                        </div>
+                        <button class="edit-position-btn">Edit Position</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shortlist Column -->
+        <div class="shortlist-column">
+            <h1 class="dashboard-title">Dashboard</h1>
+            
+            <div class="shortlist-box">
+                <div class="shortlist-header">
+                    <div class="shortlist-label">Shortlist</div>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search applicants...">
+                        <button>Search</button>
+                    </div>
+                </div>
+                
+                <div class="students-container">
+                    <div class="student-card">
+                        <div class="student-name">John Smith</div>
+                        <div class="student-status status-applied">Applied</div>
+                        <div class="progress-labels">
+                            <span>Applied</span>
+                            <span>Shortlisted</span>
+                            <span>Accepted</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-applied"></div>
+                        </div>
+                        <button class="review-btn" onclick="viewApplicant(1)">Review</button>
+                    </div>
+                    
+                    <div class="student-card">
+                        <div class="student-name">Sarah Johnson</div>
+                        <div class="student-status status-shortlisted">Shortlisted</div>
+                        <div class="progress-labels">
+                            <span>Applied</span>
+                            <span>Shortlisted</span>
+                            <span>Accepted</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-shortlisted"></div>
+                        </div>
+                        <button class="review-btn" onclick="viewApplicant(2)">Review</button>
+                    </div>
+                    
+                    <div class="student-card">
+                        <div class="student-name">Michael Chen</div>
+                        <div class="student-status status-accepted">Accepted</div>
+                        <div class="progress-labels">
+                            <span>Applied</span>
+                            <span>Shortlisted</span>
+                            <span>Accepted</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-accepted"></div>
+                        </div>
+                        <button class="review-btn" onclick="viewApplicant(3)">Review</button>
+                    </div>
+                    
+                    <div class="student-card">
+                        <div class="student-name">Emily Davis</div>
+                        <div class="student-status status-rejected">Rejected</div>
+                        <div class="progress-labels">
+                            <span>Applied</span>
+                            <span>Shortlisted</span>
+                            <span>Rejected</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-rejected"></div>
+                        </div>
+                        <button class="review-btn" onclick="viewApplicant(4)">Review</button>
+                    </div>
+                    
+                    <div class="student-card">
+                        <div class="student-name">Robert Wilson</div>
+                        <div class="student-status status-applied">Applied</div>
+                        <div class="progress-labels">
+                            <span>Applied</span>
+                            <span>Shortlisted</span>
+                            <span>Accepted</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-applied"></div>
+                        </div>
+                        <button class="review-btn" onclick="viewApplicant(5)">Review</button>
+                    </div>
+                    
+                    <div class="student-card">
+                        <div class="student-name">Lisa Anderson</div>
+                        <div class="student-status status-shortlisted">Shortlisted</div>
+                        <div class="progress-labels">
+                            <span>Applied</span>
+                            <span>Shortlisted</span>
+                            <span>Accepted</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-shortlisted"></div>
+                        </div>
+                        <button class="review-btn" onclick="viewApplicant(6)">Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Position Modal -->
+    <div class="modal" id="positionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Create New Position</div>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            
+            <form id="positionForm">
+                <div class="form-group">
+                    <label for="positionName">Position Name</label>
+                    <input type="text" id="positionName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="positionDescription">Description</label>
+                    <textarea id="positionDescription" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="positionCapacity">Capacity</label>
+                    <input type="number" id="positionCapacity" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="positionDepartment">Department</label>
+                    <select id="positionDepartment" required>
+                        <option value="">Select Department</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="design">Design</option>
+                        <option value="product">Product</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="sales">Sales</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn-save">Save Position</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Applicant Tracking System &copy; 2024</p>
+    </footer>
+
+    <script>
+        function viewApplicant(applicantId) {
+            window.location.href = `review.html?id=${applicantId}`;
+        }
+        
+        // Modal functionality
+        const modal = document.getElementById('positionModal');
+        const createBtn = document.getElementById('createPositionBtn');
+        const closeBtn = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const positionForm = document.getElementById('positionForm');
+        
+        createBtn.addEventListener('click', function() {
+            modal.style.display = 'flex';
+            document.getElementById('modalTitle').textContent = 'Create New Position';
+            positionForm.reset();
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        positionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Position created successfully!');
+            modal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
