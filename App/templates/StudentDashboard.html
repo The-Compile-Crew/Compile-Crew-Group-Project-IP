@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard - Internship Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; }
+        
+        /* Top Header Bar */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            border-bottom: 2px solid #ddd;
+            background: white;
+        }
+        
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dashboard-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        /* Main Content */
+        .dashboard-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            margin-bottom: 15px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        /* Widgets */
+        .widget-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .widget {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .position-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .position-description {
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .position-status {
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .view-response-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="dashboard-header">
+        <div class="profile-section">
+            <div class="profile-icon">
+                <i class="material-icons">person</i>
+            </div>
+            <span>Username</span>
+        </div>
+        
+        <div class="dashboard-title">DASHBOARD</div>
+        
+        <div>
+            <!-- Empty space to balance the layout -->
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <div class="section-header">
+            <h4>Shortlisted Positions</h4>
+        </div>
+        
+        <input type="text" placeholder="Search positions..." class="search-bar">
+        
+        <div class="widget-grid">
+            <!-- Position Widget 1 -->
+            <div class="widget">
+                <div class="position-name">Software Developer Intern</div>
+                <div class="position-description">Develop and maintain web applications using modern frameworks. Work with a team of experienced developers.</div>
+                <div class="position-status">Status: Under Review</div>
+                <button class="btn purple waves-effect waves-light view-response-btn">View Response</button>
+            </div>
+            
+            <!-- Position Widget 2 -->
+            <div class="widget">
+                <div class="position-name">Data Analyst</div>
+                <div class="position-description">Analyze business data and create reports. Work with SQL, Python, and data visualization tools.</div>
+                <div class="position-status">Status: Interview Scheduled</div>
+                <button class="btn purple waves-effect waves-light view-response-btn">View Response</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
