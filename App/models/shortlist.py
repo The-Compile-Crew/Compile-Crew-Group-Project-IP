@@ -57,16 +57,16 @@ class Shortlist(db.Model):
 
     def set_state_from_status(self, status: DecisionStatus):
         if status == DecisionStatus.applied:
-            from App.models.shortlist_states import AppliedState
+            from App.models.shortliststate import AppliedState
             self.state = AppliedState()
         elif status == DecisionStatus.shortlisted:
-            from App.models.shortlist_states import ShortlistedState
+            from App.models.shortliststate import ShortlistedState
             self.state = ShortlistedState()
         elif status == DecisionStatus.accepted:
-            from App.models.shortlist_states import AcceptedState
+            from App.models.shortliststate import AcceptedState
             self.state = AcceptedState()
         elif status == DecisionStatus.rejected:
-            from App.models.shortlist_states import RejectedState
+            from App.models.shortliststate import RejectedState
             self.state = RejectedState()
 
     #removed update_status method
