@@ -3,6 +3,7 @@ from App.models.user import User
 from sqlalchemy import Enum
 import enum  
 
+
 class DecisionStatus(enum.Enum):
     applied = "applied"
     shortlisted = "shortlisted"
@@ -31,10 +32,12 @@ class Shortlist(db.Model):
     title = db.Column(db.String(512), nullable=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
+    state = db.Column(db.String(50), nullable=True)
     status = db.Column(Enum(DecisionStatus, native_enum=False), nullable=False, default=DecisionStatus.applied)
     student = db.relationship('Student', backref=db.backref('shortlist', lazy=True))
     position = db.relationship('Position', backref=db.backref('shortlist', lazy=True))
     staff = db.relationship('Staff', backref=db.backref('shortlist', lazy=True))
+    
 
     def __init__(self, student_id, position_id, staff_id, title):
         self.student_id = student_id
