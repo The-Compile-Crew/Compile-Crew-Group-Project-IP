@@ -32,7 +32,6 @@ class Shortlist(db.Model):
     title = db.Column(db.String(512), nullable=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
-    state = db.Column(db.String(50), nullable=True)
     status = db.Column(Enum(DecisionStatus, native_enum=False), nullable=False, default=DecisionStatus.applied)
     student = db.relationship('Student', backref=db.backref('shortlist', lazy=True))
     position = db.relationship('Position', backref=db.backref('shortlist', lazy=True))
