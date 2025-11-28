@@ -41,6 +41,10 @@
             font-weight: bold;
             text-transform: uppercase;
         }
+
+        .logout-section {
+            margin-left: auto;
+        }
         
         /* Main Content */
         .dashboard-content {
@@ -54,11 +58,11 @@
         }
         
         .panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
         .panel-header h4 {
             margin-right: auto;
@@ -116,8 +120,6 @@
         .right-panel {
             margin-top: 40px;
         }
-
-     
     </style>
 </head>
 <body>
@@ -132,8 +134,8 @@
         
         <div class="dashboard-title">DASHBOARD</div>
         
-        <div>
-            <!-- Empty space to balance the layout -->
+        <div class="logout-section">
+            <button class="btn red waves-effect waves-light">Logout</button>
         </div>
     </div>
 
@@ -153,7 +155,7 @@
                     <div class="position-name">Software Developer</div>
                     <div class="position-description">Develop web applications</div>
                     <div class="position-capacity">Capacity: 2/5</div>
-                    <button class="btn waves-effect waves-light" style="margin-top: 10px;">Edit Position</button>
+                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
                 </div>
                 
                 <!-- Position Widget 2 -->
@@ -161,7 +163,7 @@
                     <div class="position-name">Data Analyst</div>
                     <div class="position-description">Analyze business data</div>
                     <div class="position-capacity">Capacity: 1/3</div>
-                    <button class="btn waves-effect waves-light" style="margin-top: 10px;">Edit Position</button>
+                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
                 </div>
             </div>
         </div>
@@ -180,7 +182,7 @@
                         <div class="student-name">John Smith</div>
                         <div class="student-status">Status: Applied</div>
                     </div>
-                    <button class="btn purple waves-effect waves-light">Review</button>
+                    <button class="btn red waves-effect waves-light">Delist</button>
                 </div>
                 
                 <!-- Applicant Widget 2 -->
@@ -189,7 +191,7 @@
                         <div class="student-name">Sarah Johnson</div>
                         <div class="student-status">Status: Shortlisted</div>
                     </div>
-                    <button class="btn purple waves-effect waves-light">Review</button>
+                    <button class="btn red waves-effect waves-light">Delist</button>
                 </div>
                 
                 <!-- Applicant Widget 3 -->
@@ -198,7 +200,7 @@
                         <div class="student-name">Mike Chen</div>
                         <div class="student-status">Status: Applied</div>
                     </div>
-                    <button class="btn purple waves-effect waves-light">Review</button>
+                    <button class="btn red waves-effect waves-light">Delist</button>
                 </div>
             </div>
         </div>

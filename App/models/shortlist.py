@@ -3,6 +3,7 @@ from App.models.user import User
 from sqlalchemy import Enum
 import enum  
 
+
 class DecisionStatus(enum.Enum):
     applied = "applied"
     shortlisted = "shortlisted"
@@ -32,17 +33,21 @@ class Shortlist(db.Model):
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
     status = db.Column(Enum(DecisionStatus, native_enum=False), nullable=False, default=DecisionStatus.applied)
+    state = db.Column(db.String, nullable=True)
     student = db.relationship('Student', backref=db.backref('shortlist', lazy=True))
     position = db.relationship('Position', backref=db.backref('shortlist', lazy=True))
     staff = db.relationship('Staff', backref=db.backref('shortlist', lazy=True))
+    
+     
+    
 
-    def __init__(self, student_id, position_id, staff_id, title):
+    def __init__(self, student_id, position_id, staff_id, title, state):
         self.student_id = student_id
         self.position_id = position_id
         self.status = DecisionStatus.applied
         self.staff_id = staff_id
         self.title = title
-        self.state = None
+        self.state = state
         self.set_state_from_status(self.status)
 
 #new method to set state based on status
@@ -54,16 +59,19 @@ class Shortlist(db.Model):
 
     def set_state_from_status(self, status: DecisionStatus):
         if status == DecisionStatus.applied:
-            from App.models.shortlist_states import AppliedState
+            from App.models.shortliststate import AppliedState
             self.state = AppliedState()
+
         elif status == DecisionStatus.shortlisted:
-            from App.models.shortlist_states import ShortlistedState
+            from App.models.shortliststate import ShortlistedState
             self.state = ShortlistedState()
+
         elif status == DecisionStatus.accepted:
-            from App.models.shortlist_states import AcceptedState
+            from App.models.shortliststate import AcceptedState
             self.state = AcceptedState()
+
         elif status == DecisionStatus.rejected:
-            from App.models.shortlist_states import RejectedState
+            from App.models.shortliststate import RejectedState
             self.state = RejectedState()
 
     #removed update_status method

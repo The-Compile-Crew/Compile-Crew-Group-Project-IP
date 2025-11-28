@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Applicant - Applicant Tracking System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav li {
+            margin-left: 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .back-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .back-text {
+            font-size: 18px;
+            color: #3498db;
+            font-weight: 500;
+        }
+        
+        .position-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .student-name {
+            font-size: 20px;
+            margin-bottom: 25px;
+            color: #34495e;
+        }
+        
+        .application-details {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            width: 150px;
+            color: #555;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: #333;
+        }
+        
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .skill-tag {
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .notes-section {
+            margin-top: 20px;
+        }
+        
+        .notes-content {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-accept {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-accept:hover {
+            background-color: #219a52;
+        }
+        
+        .btn-reject {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-reject:hover {
+            background-color: #c0392b;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #eee;
+        }
+        
+        .current-status {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        
+        .status-applied {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .status-shortlisted {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .status-accepted {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .status-rejected {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        /* Progress Bar */
+        .progress-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-applied {
+            width: 33%;
+            background-color: #3498db;
+        }
+        
+        .progress-shortlisted {
+            width: 66%;
+            background-color: #f39c12;
+        }
+        
+        .progress-accepted {
+            width: 100%;
+            background-color: #27ae60;
+        }
+        
+        .progress-rejected {
+            width: 100%;
+            background-color: #e74c3c;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .progress-current {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">Applicant Tracking System</div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="#">All Applicants</a></li>
+                    <li><a href="#">Reports</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="back-section">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <span class="back-text">Return to Dashboard</span>
+        </div>
+        
+        <div class="position-name" id="positionName">Frontend Developer</div>
+        <div class="student-name" id="studentName">
+            John Smith 
+            <span class="current-status status-applied" id="currentStatus">Applied</span>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-section">
+            <div class="section-title">Application Progress</div>
+            <div class="progress-labels">
+                <span>Applied</span>
+                <span>Shortlisted</span>
+                <span id="progressEndLabel">Accepted</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill progress-applied" id="progressFill"></div>
+            </div>
+            <div class="progress-labels">
+                <span>✓</span>
+                <span id="progressMiddleCheck"></span>
+                <span id="progressEndCheck"></span>
+            </div>
+        </div>
+        
+        <div class="application-details">
+            <div class="section-title">Application Details</div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value" id="applicantEmail">john.smith@email.com</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Phone:</div>
+                <div class="detail-value" id="applicantPhone">+1 (555) 123-4567</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Applied Date:</div>
+                <div class="detail-value" id="appliedDate">January 15, 2024</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Experience:</div>
+                <div class="detail-value" id="experience">3 years</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Education:</div>
+                <div class="detail-value" id="education">Bachelor's in Computer Science</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Skills:</div>
+                <div class="detail-value">
+                    <div class="skills-container" id="skillsContainer">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notes-section">
+                <div class="section-title">Notes</div>
+                <div class="notes-content" id="applicantNotes">
+                    Strong portfolio with modern React projects. Excellent communication skills and team player.
+                    Has experience with agile development methodologies.
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-accept" onclick="updateStatus('Accepted')">Accept</button>
+            <button class="btn btn-reject" onclick="updateStatus('Rejected')">Reject</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Applicant Tracking System &copy; 2024</p>
+    </footer>
+
+    <script>
+        // Sample applicant data
+        const applicants = {
+            1: {
+                name: "John Smith",
+                email: "john.smith@email.com",
+                phone: "+1 (555) 123-4567",
+                position: "Frontend Developer",
+                appliedDate: "January 15, 2024",
+                status: "Applied",
+                experience: "3 years",
+                education: "Bachelor's in Computer Science",
+                skills: ["React", "JavaScript", "CSS", "HTML", "Git"],
+                notes: "Strong portfolio with modern React projects. Excellent communication skills and team player. Has experience with agile development methodologies."
+            },
+            2: {
+                name: "Sarah Johnson",
+                email: "sarah.j@email.com",
+                phone: "+1 (555) 987-6543",
+                position: "UI/UX Designer",
+                appliedDate: "January 16, 2024",
+                status: "Shortlisted",
+                experience: "4 years",
+                education: "Master's in Design",
+                skills: ["Figma", "UI Design", "User Research", "Prototyping", "Wireframing"],
+                notes: "Excellent design portfolio with detailed case studies. Strong understanding of user-centered design principles."
+            },
+            3: {
+                name: "Michael Chen",
+                email: "m.chen@email.com",
+                phone: "+1 (555) 456-7890",
+                position: "Backend Developer",
+                appliedDate: "January 14, 2024",
+                status: "Accepted",
+                experience: "5 years",
+                education: "Bachelor's in Software Engineering",
+                skills: ["Node.js", "Python", "AWS", "MongoDB", "Docker"],
+                notes: "Strong backend architecture experience. Has successfully deployed multiple large-scale applications."
+            },
+            4: {
+                name: "Emily Davis",
+                email: "emily.davis@email.com",
+                phone: "+1 (555) 234-5678",
+                position: "Product Manager",
+                appliedDate: "January 17, 2024",
+                status: "Rejected",
+                experience: "6 years",
+                education: "MBA",
+                skills: ["Product Strategy", "Agile", "Analytics", "Roadmapping"],
+                notes: "Good overall experience but lacks specific industry knowledge needed for this role."
+            },
+            5: {
+                name: "Robert Wilson",
+                email: "robert.wilson@email.com",
+                phone: "+1 (555) 345-6789",
+                position: "Data Analyst",
+                appliedDate: "January 18, 2024",
+                status: "Applied",
+                experience: "2 years",
+                education: "Bachelor's in Statistics",
+                skills: ["SQL", "Python", "Tableau", "Excel", "R"],
+                notes: "Strong analytical skills with good attention to detail. Needs more experience with large datasets."
+            },
+            6: {
+                name: "Lisa Anderson",
+                email: "lisa.anderson@email.com",
+                phone: "+1 (555) 456-7890",
+                position: "Marketing Manager",
+                appliedDate: "January 13, 2024",
+                status: "Shortlisted",
+                experience: "7 years",
+                education: "Bachelor's in Marketing",
+                skills: ["Digital Marketing", "SEO", "Content Strategy", "Social Media"],
+                notes: "Extensive experience in digital marketing with proven track record of successful campaigns."
+            }
+        };
+
+        // Get applicant ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicantId = urlParams.get('id') || 1;
+        const applicant = applicants[applicantId];
+
+        function loadApplicantData() {
+            if (applicant) {
+                document.getElementById('positionName').textContent = applicant.position;
+                document.getElementById('studentName').innerHTML = 
+                    `${applicant.name} <span class="current-status status-${applicant.status.toLowerCase()}" id="currentStatus">${applicant.status}</span>`;
+                
+                document.getElementById('applicantEmail').textContent = applicant.email;
+                document.getElementById('applicantPhone').textContent = applicant.phone;
+                document.getElementById('appliedDate').textContent = applicant.appliedDate;
+                document.getElementById('experience').textContent = applicant.experience;
+                document.getElementById('education').textContent = applicant.education;
+                document.getElementById('applicantNotes').textContent = applicant.notes;
+                
+                // Populate skills
+                const skillsContainer = document.getElementById('skillsContainer');
+                skillsContainer.innerHTML = '';
+                applicant.skills.forEach(skill => {
+                    const skillElement = document.createElement('div');
+                    skillElement.className = 'skill-tag';
+                    skillElement.textContent = skill;
+                    skillsContainer.appendChild(skillElement);
+                });
+                
+                // Update progress bar
+                updateProgressBar(applicant.status);
+            }
+        }
+
+        function updateProgressBar(status) {
+            const progressFill = document.getElementById('progressFill');
+            const progressEndLabel = document.getElementById('progressEndLabel');
+            const progressMiddleCheck = document.getElementById('progressMiddleCheck');
+            const progressEndCheck = document.getElementById('progressEndCheck');
+            
+            // Reset checks
+            progressMiddleCheck.textContent = '';
+            progressEndCheck.textContent = '';
+            
+            switch(status) {
+                case 'Applied':
+                    progressFill.className = 'progress-fill progress-applied';
+                    break;
+                case 'Shortlisted':
+                    progressFill.className = 'progress-fill progress-shortlisted';
+                    progressMiddleCheck.textContent = '✓';
+                    break;
+                case 'Accepted':
+                    progressFill.className = 'progress-fill progress-accepted';
+                    progressMiddleCheck.textContent = '✓';
+                    progressEndCheck.textContent = '✓';
+                    break;
+                case 'Rejected':
+                    progressFill.className = 'progress-fill progress-rejected';
+                    progressEndLabel.textContent = 'Rejected';
+                    progressEndCheck.textContent = '✗';
+                    break;
+            }
+        }
+
+        function updateStatus(newStatus) {
+            if (confirm(`Are you sure you want to change this applicant's status to ${newStatus}?`)) {
+                applicant.status = newStatus;
+                
+                // Update the status badge
+                const statusElement = document.getElementById('currentStatus');
+                statusElement.textContent = newStatus;
+                statusElement.className = `current-status status-${newStatus.toLowerCase()}`;
+                
+                // Update progress bar
+                updateProgressBar(newStatus);
+                
+                alert(`Applicant status updated to ${newStatus}`);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Load applicant data when page loads
+        window.onload = loadApplicantData;
+    </script>
+</body>
+</html>

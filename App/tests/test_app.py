@@ -186,9 +186,27 @@ class UserIntegrationTests(unittest.TestCase):
         assert any(shortlist.id == s.id for s in shortlists)
         assert len(shortlists) > 0
 
+
     # Tests data changes in the database
     #def test_update_user(self):
     #    update_user(1, "ronnie")
     #   user = get_user(1)
     #   assert user.username == "ronnie"
 
+
+class ShortlistPersistenceTests(unittest.TestCase):
+
+
+    def test_state_persistence(self):
+        staff = create_user("temp_staff", "pass", "staff")
+        student = create_user("temp_student", "pass", "student")
+        employer = create_user("temp_employer", "pass", "employer")
+        position = open_position("Temp Position", employer.id, 1)
+
+        shortlist = add_student_to_shortlist(student.id, position.id, staff.id)
+        shortlist.state = "approved"
+        db.session.commit()
+
+        # Query again to confirm persistence
+        refreshed = Shortlist.query.get(shortlist.id)
+        assert refreshed.state == "approved"
