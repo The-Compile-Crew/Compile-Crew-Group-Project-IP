@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Applicant Tracking System</title>
+    <title>Dashboard - Internship Platform</title>
     <style>
         * {
             margin: 0;
@@ -42,35 +42,51 @@
             align-items: center;
         }
         
-        .logo {
-            font-size: 24px;
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
             font-weight: bold;
         }
         
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-        
-        nav li {
-            margin-left: 20px;
-        }
-        
-        nav a {
-            color: white;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        
-        nav a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .username {
+            font-weight: 500;
         }
         
         .dashboard-title {
-            margin-bottom: 20px;
-            color: #2c3e50;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
         }
         
         /* Positions Column */
@@ -403,8 +419,7 @@
         }
         
         .form-group input, 
-        .form-group textarea, 
-        .form-group select {
+        .form-group textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -417,44 +432,48 @@
             resize: vertical;
         }
         
-        .form-actions {
+        .form-row {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
         }
         
-        .btn-cancel {
-            background-color: #95a5a6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
+        .form-row .form-group {
+            flex: 1;
         }
         
-        .btn-save {
-            background-color: #3498db;
+        .create-btn {
+            background-color: #27ae60;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 30px;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            display: block;
+            margin: 30px auto 0;
+            transition: background-color 0.3s;
+        }
+        
+        .create-btn:hover {
+            background-color: #219a52;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="header-content">
-            <div class="logo">Applicant Tracking System</div>
-            <nav>
-                <ul>
-                    <li><a href="#" class="active">Dashboard</a></li>
-                    <li><a href="#">All Applicants</a></li>
-                    <li><a href="#">Reports</a></li>
-                    <li><a href="#">Settings</a></li>
-                </ul>
-            </nav>
+            <div class="profile-section">
+                <div class="profile-icon">
+                    <i>👤</i>
+                </div>
+                <span class="username">John Doe</span>
+            </div>
+            
+            <div class="dashboard-title">DASHBOARD</div>
+            
+            <button class="logout-btn">Logout</button>
         </div>
     </header>
     
@@ -501,34 +520,12 @@
                         </div>
                         <button class="edit-position-btn">Edit Position</button>
                     </div>
-                    
-                    <div class="position-card">
-                        <div class="position-name">Product Manager</div>
-                        <div class="position-description">Define product vision, gather requirements, and guide products from conception to launch.</div>
-                        <div class="position-capacity">
-                            <span>Capacity: 1</span>
-                            <span>Filled: 0</span>
-                        </div>
-                        <button class="edit-position-btn">Edit Position</button>
-                    </div>
-                    
-                    <div class="position-card">
-                        <div class="position-name">Data Analyst</div>
-                        <div class="position-description">Analyze complex data sets to provide insights and support data-driven decision making.</div>
-                        <div class="position-capacity">
-                            <span>Capacity: 2</span>
-                            <span>Filled: 0</span>
-                        </div>
-                        <button class="edit-position-btn">Edit Position</button>
-                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Shortlist Column -->
         <div class="shortlist-column">
-            <h1 class="dashboard-title">Dashboard</h1>
-            
             <div class="shortlist-box">
                 <div class="shortlist-header">
                     <div class="shortlist-label">Shortlist</div>
@@ -594,34 +591,6 @@
                         </div>
                         <button class="review-btn" onclick="viewApplicant(4)">Review</button>
                     </div>
-                    
-                    <div class="student-card">
-                        <div class="student-name">Robert Wilson</div>
-                        <div class="student-status status-applied">Applied</div>
-                        <div class="progress-labels">
-                            <span>Applied</span>
-                            <span>Shortlisted</span>
-                            <span>Accepted</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill progress-applied"></div>
-                        </div>
-                        <button class="review-btn" onclick="viewApplicant(5)">Review</button>
-                    </div>
-                    
-                    <div class="student-card">
-                        <div class="student-name">Lisa Anderson</div>
-                        <div class="student-status status-shortlisted">Shortlisted</div>
-                        <div class="progress-labels">
-                            <span>Applied</span>
-                            <span>Shortlisted</span>
-                            <span>Accepted</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill progress-shortlisted"></div>
-                        </div>
-                        <button class="review-btn" onclick="viewApplicant(6)">Review</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -646,33 +615,25 @@
                     <textarea id="positionDescription" required></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="positionCapacity">Capacity</label>
-                    <input type="number" id="positionCapacity" min="1" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="positionCapacity">Capacity</label>
+                        <input type="number" id="positionCapacity" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="positionEndDate">End Date</label>
+                        <input type="date" id="positionEndDate" required>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="positionDepartment">Department</label>
-                    <select id="positionDepartment" required>
-                        <option value="">Select Department</option>
-                        <option value="engineering">Engineering</option>
-                        <option value="design">Design</option>
-                        <option value="product">Product</option>
-                        <option value="marketing">Marketing</option>
-                        <option value="sales">Sales</option>
-                    </select>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="btn-save">Save Position</button>
-                </div>
+                <button type="submit" class="create-btn">CREATE</button>
             </form>
         </div>
     </div>
     
     <footer>
-        <p>Applicant Tracking System &copy; 2024</p>
+        <p>Internship Platform &copy; 2024</p>
     </footer>
 
     <script>
@@ -684,7 +645,6 @@
         const modal = document.getElementById('positionModal');
         const createBtn = document.getElementById('createPositionBtn');
         const closeBtn = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelBtn');
         const positionForm = document.getElementById('positionForm');
         
         createBtn.addEventListener('click', function() {
@@ -694,10 +654,6 @@
         });
         
         closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-        
-        cancelBtn.addEventListener('click', function() {
             modal.style.display = 'none';
         });
         

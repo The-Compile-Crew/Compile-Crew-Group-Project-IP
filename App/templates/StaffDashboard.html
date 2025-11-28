@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Internship Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; }
+        
+        /* Top Header Bar */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            border-bottom: 2px solid #ddd;
+            background: white;
+        }
+        
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dashboard-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .logout-section {
+            margin-left: auto;
+        }
+        
+        /* Main Content */
+        .dashboard-content {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .left-panel, .right-panel {
+            flex: 1;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .panel-header h4 {
+            margin-right: auto;
+        }
+        
+        .right-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        /* Widgets */
+        .widget-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .widget {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .position-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .student-widget {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .student-info {
+            text-align: left;
+        }
+        
+        .student-name {
+            font-weight: bold;
+        }
+        
+        .search-bar {
+            width: 250px;
+            padding: 8px;
+        }
+
+        /* New adjustments */
+        .right-panel {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <div class="dashboard-header">
+        <div class="profile-section">
+            <div class="profile-icon">
+                <i class="material-icons">person</i>
+            </div>
+            <span>Username</span>
+        </div>
+        
+        <div class="dashboard-title">DASHBOARD</div>
+        
+        <div class="logout-section">
+            <button class="btn red waves-effect waves-light">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <!-- Left Panel - Positions -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <h4>Positions</h4>
+            </div>
+            
+            <input type="text" placeholder="Search positions..." class="browser-default search-bar" style="margin-bottom: 15px;">
+            
+            <div class="widget-grid">
+                <!-- Position Widget 1 -->
+                <div class="widget">
+                    <div class="position-name">Software Developer</div>
+                    <div class="position-description">Develop web applications</div>
+                    <div class="position-capacity">Capacity: 2/5</div>
+                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
+                </div>
+                
+                <!-- Position Widget 2 -->
+                <div class="widget">
+                    <div class="position-name">Data Analyst</div>
+                    <div class="position-description">Analyze business data</div>
+                    <div class="position-capacity">Capacity: 1/3</div>
+                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Shortlist -->
+        <div class="right-panel">
+            <div class="right-panel-header">
+                <h4 style="margin: 0;">Shortlist</h4>
+                <input type="text" placeholder="Search..." class="browser-default search-bar">
+            </div>
+            
+            <div class="widget-grid">
+                <!-- Applicant Widget 1 -->
+                <div class="student-widget">
+                    <div class="student-info">
+                        <div class="student-name">John Smith</div>
+                        <div class="student-status">Status: Applied</div>
+                    </div>
+                    <button class="btn red waves-effect waves-light">Delist</button>
+                </div>
+                
+                <!-- Applicant Widget 2 -->
+                <div class="student-widget">
+                    <div class="student-info">
+                        <div class="student-name">Sarah Johnson</div>
+                        <div class="student-status">Status: Shortlisted</div>
+                    </div>
+                    <button class="btn red waves-effect waves-light">Delist</button>
+                </div>
+                
+                <!-- Applicant Widget 3 -->
+                <div class="student-widget">
+                    <div class="student-info">
+                        <div class="student-name">Mike Chen</div>
+                        <div class="student-status">Status: Applied</div>
+                    </div>
+                    <button class="btn red waves-effect waves-light">Delist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
