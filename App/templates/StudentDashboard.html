@@ -5,88 +5,161 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body { margin: 0; padding: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         
-        /* Top Header Bar */
-        .dashboard-header {
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            border-bottom: 2px solid #ddd;
-            background: white;
         }
         
-        .profile-section {
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info {
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
         .profile-icon {
-            width: 40px;
-            height: 40px;
-            background: #e0e0e0;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
+            background-color: #3498db;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .username {
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
         
         .dashboard-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 28px;
             font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .logout-btn {
-            margin-left: auto;
         }
         
         /* Main Content */
         .dashboard-content {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
         }
         
         .section-header {
-            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
         }
         
         .search-bar {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 14px;
         }
         
         /* Widgets */
         .widget-grid {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
         
         .widget {
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
             padding: 20px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .position-name {
             font-weight: bold;
             font-size: 18px;
             margin-bottom: 10px;
+            color: #2c3e50;
         }
         
         .position-description {
             margin-bottom: 8px;
-            color: #666;
+            color: #555;
+            font-size: 14px;
         }
         
         .position-status {
@@ -94,55 +167,375 @@
             font-weight: 500;
         }
         
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-pending {
+            background-color: #f39c12;
+        }
+        
+        .status-accepted {
+            background-color: #27ae60;
+        }
+        
+        .status-rejected {
+            background-color: #e74c3c;
+        }
+        
         .view-response-btn {
-            margin-top: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .view-response-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+            font-style: italic;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .response-details {
+            margin: 20px 0;
+        }
+        
+        .response-details p {
+            margin-bottom: 15px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .modal-close {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #eee;
         }
     </style>
 </head>
 <body>
-    <!-- Top Header -->
-    <div class="dashboard-header">
-        <div class="profile-section">
-            <div class="profile-icon">
-                <i class="material-icons">person</i>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">Internship Platform</div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="profile-icon" id="profile-icon">JD</div>
+                    <div class="username" id="username-display">John Doe</div>
+                </div>
+                <button class="logout-btn" id="logout-btn">Logout</button>
             </div>
-            <span>Username</span>
         </div>
-        
-        <div class="dashboard-title">DASHBOARD</div>
-        
-        <div class="logout-btn">
-            <button class="btn red waves-effect waves-light">Logout</button>
-        </div>
-    </div>
+    </header>
 
     <!-- Main Content -->
-    <div class="dashboard-content">
-        <div class="section-header">
-            <h4>Shortlisted Positions</h4>
-        </div>
+    <div class="container">
+        <h1 class="dashboard-title">Student Dashboard</h1>
         
-        <input type="text" placeholder="Search positions..." class="search-bar">
-        
-        <div class="widget-grid">
-            <!-- Position Widget 1 -->
-            <div class="widget">
-                <div class="position-name">Software Developer Intern</div>
-                <div class="position-description">Develop and maintain web applications using modern frameworks. Work with a team of experienced developers.</div>
-                <div class="position-status">Status: Under Review</div>
-                <button class="btn purple waves-effect waves-light view-response-btn">View Response</button>
+        <div class="dashboard-content">
+            <div class="section-header">
+                <div class="section-label">Shortlisted Positions</div>
             </div>
             
-            <!-- Position Widget 2 -->
-            <div class="widget">
-                <div class="position-name">Data Analyst</div>
-                <div class="position-description">Analyze business data and create reports. Work with SQL, Python, and data visualization tools.</div>
-                <div class="position-status">Status: Interview Scheduled</div>
-                <button class="btn purple waves-effect waves-light view-response-btn">View Response</button>
+            <input type="text" id="search-input" placeholder="Search positions..." class="search-bar">
+            
+            <div class="widget-grid" id="positions-container">
+                <!-- Position Widget 1 -->
+                <div class="widget" data-position="Software Developer Intern">
+                    <div class="position-name">Software Developer Intern</div>
+                    <div class="position-description">Develop and maintain web applications using modern frameworks. Work with a team of experienced developers.</div>
+                    <div class="position-status">Status: <span class="status-badge status-pending">Under Review</span></div>
+                    <button class="view-response-btn" data-position="Software Developer Intern" data-status="pending">View Response</button>
+                </div>
+                
+                <!-- Position Widget 2 -->
+                <div class="widget" data-position="Data Analyst">
+                    <div class="position-name">Data Analyst</div>
+                    <div class="position-description">Analyze business data and create reports. Work with SQL, Python, and data visualization tools.</div>
+                    <div class="position-status">Status: <span class="status-badge status-accepted">Interview Scheduled</span></div>
+                    <button class="view-response-btn" data-position="Data Analyst" data-status="accepted">View Response</button>
+                </div>
+                
+                <!-- Position Widget 3 -->
+                <div class="widget" data-position="UX Designer">
+                    <div class="position-name">UX Designer</div>
+                    <div class="position-description">Design user interfaces and experiences for web and mobile applications. Create wireframes and prototypes.</div>
+                    <div class="position-status">Status: <span class="status-badge status-rejected">Application Rejected</span></div>
+                    <button class="view-response-btn" data-position="UX Designer" data-status="rejected">View Response</button>
+                </div>
+                
+                <!-- Position Widget 4 -->
+                <div class="widget" data-position="Marketing Intern">
+                    <div class="position-name">Marketing Intern</div>
+                    <div class="position-description">Assist in creating marketing campaigns, social media management, and content creation.</div>
+                    <div class="position-status">Status: <span class="status-badge status-pending">Under Review</span></div>
+                    <button class="view-response-btn" data-position="Marketing Intern" data-status="pending">View Response</button>
+                </div>
+            </div>
+            
+            <div id="no-results" class="no-results" style="display: none;">
+                No positions found matching your search criteria.
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Response Details Modal -->
+    <div id="response-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Application Response</div>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <div class="response-details">
+                <p><strong>Position:</strong> <span id="modal-position-name"></span></p>
+                <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                <div id="modal-details">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-close" id="modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Internship Platform &copy; 2024</p>
+    </footer>
+
+    <script>
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = {
+                username: "John Doe",
+                email: "john.doe@example.com"
+            };
+            
+            // Set the username in the header
+            document.getElementById('username-display').textContent = currentUser.username;
+            document.getElementById('profile-icon').textContent = currentUser.username.charAt(0).toUpperCase();
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = 'login.html'; // Redirect to login page
+                }
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            const positionsContainer = document.getElementById('positions-container');
+            const noResultsMessage = document.getElementById('no-results');
+            const positionWidgets = document.querySelectorAll('.widget');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                let hasResults = false;
+                
+                positionWidgets.forEach(widget => {
+                    const positionName = widget.getAttribute('data-position').toLowerCase();
+                    
+                    if (positionName.includes(searchTerm)) {
+                        widget.style.display = 'block';
+                        hasResults = true;
+                    } else {
+                        widget.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide no results message
+                if (hasResults || searchTerm === '') {
+                    noResultsMessage.style.display = 'none';
+                } else {
+                    noResultsMessage.style.display = 'block';
+                }
+            });
+            
+            // Modal functionality
+            const modal = document.getElementById('response-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            
+            // View Response button functionality
+            const viewResponseButtons = document.querySelectorAll('.view-response-btn');
+            
+            viewResponseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const positionName = this.getAttribute('data-position');
+                    const status = this.getAttribute('data-status');
+                    
+                    // Set modal content based on position and status
+                    document.getElementById('modal-position-name').textContent = positionName;
+                    
+                    // Set status with appropriate styling
+                    const statusElement = document.getElementById('modal-status');
+                    statusElement.textContent = '';
+                    statusElement.className = '';
+                    
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = 'status-badge';
+                    
+                    if (status === 'pending') {
+                        statusBadge.textContent = 'Pending Review';
+                        statusBadge.classList.add('status-pending');
+                    } else if (status === 'accepted') {
+                        statusBadge.textContent = 'Accepted';
+                        statusBadge.classList.add('status-accepted');
+                    } else if (status === 'rejected') {
+                        statusBadge.textContent = 'Rejected';
+                        statusBadge.classList.add('status-rejected');
+                    }
+                    
+                    statusElement.appendChild(statusBadge);
+                    
+                    // Set additional details based on status
+                    const detailsElement = document.getElementById('modal-details');
+                    detailsElement.innerHTML = '';
+                    
+                    if (status === 'pending') {
+                        detailsElement.innerHTML = `
+                            <p>Your application is currently under review by our hiring team.</p>
+                            <p>We will notify you as soon as we have an update. This process typically takes 1-2 weeks.</p>
+                            <p><strong>Next Steps:</strong></p>
+                            <ul>
+                                <li>Application screening</li>
+                                <li>Technical assessment (if applicable)</li>
+                                <li>Interview process</li>
+                                <li>Final decision</li>
+                            </ul>
+                        `;
+                    } else if (status === 'accepted') {
+                        detailsElement.innerHTML = `
+                            <p>Congratulations! Your application has been accepted.</p>
+                            <p>An interview has been scheduled for you:</p>
+                            <ul>
+                                <li><strong>Date:</strong> October 15, 2023</li>
+                                <li><strong>Time:</strong> 2:00 PM EST</li>
+                                <li><strong>Location:</strong> Virtual (Zoom)</li>
+                                <li><strong>Interviewer:</strong> Sarah Johnson, Hiring Manager</li>
+                            </ul>
+                            <p>You will receive a calendar invitation shortly with the meeting link.</p>
+                            <p><strong>Preparation Tips:</strong></p>
+                            <ul>
+                                <li>Review the job description and your application</li>
+                                <li>Prepare examples of your relevant experience</li>
+                                <li>Be ready to discuss your technical skills</li>
+                                <li>Have questions ready for the interviewer</li>
+                            </ul>
+                        `;
+                    } else if (status === 'rejected') {
+                        detailsElement.innerHTML = `
+                            <p>Thank you for your interest in this position.</p>
+                            <p>After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our current needs.</p>
+                            <p>We appreciate the time and effort you put into your application and encourage you to apply for other positions that may be a better fit for your skills and experience.</p>
+                            <p><strong>Feedback:</strong></p>
+                            <ul>
+                                <li>Strong technical background</li>
+                                <li>Consider gaining more experience with [specific technology]</li>
+                                <li>Your portfolio demonstrates good design thinking</li>
+                            </ul>
+                        `;
+                    }
+                    
+                    // Open the modal
+                    modal.style.display = 'flex';
+                });
+            });
+            
+            // Close modal functionality
+            closeModalBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            modalCloseBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
