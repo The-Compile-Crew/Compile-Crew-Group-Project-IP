@@ -99,6 +99,8 @@
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
         
         .login-btn:hover {
@@ -541,76 +543,6 @@
         .error-border {
             border-color: #e74c3c !important;
         }
-        
-        /* Login Modal */
-        .login-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .login-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .login-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            text-align: center;
-        }
-        
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .login-input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .login-submit {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        
-        .login-submit:hover {
-            background-color: #2980b9;
-        }
-        
-        .demo-credentials {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #7f8c8d;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -711,23 +643,6 @@
                     <button type="submit" class="btn-save">Save Position</button>
                 </div>
             </form>
-        </div>
-    </div>
-    
-    <!-- Login Modal -->
-    <div class="login-modal" id="loginModal">
-        <div class="login-content">
-            <div class="login-title">Login to Applicant Tracking System</div>
-            <form class="login-form" id="loginForm">
-                <input type="text" class="login-input" id="loginUsername" placeholder="Username" required>
-                <input type="password" class="login-input" id="loginPassword" placeholder="Password" required>
-                <button type="submit" class="login-submit">Login</button>
-            </form>
-            <div class="demo-credentials">
-                <strong>Demo Credentials:</strong><br>
-                Username: John Smith<br>
-                Password: password
-            </div>
         </div>
     </div>
     
@@ -881,8 +796,6 @@
         const deletePositionBtn = document.getElementById('deletePositionBtn');
         const dateError = document.getElementById('dateError');
         const endDateInput = document.getElementById('positionEndDate');
-        const loginModal = document.getElementById('loginModal');
-        const loginForm = document.getElementById('loginForm');
 
         // User state - start as logged in
         let currentUser = {
@@ -918,13 +831,8 @@
                 document.getElementById('logoutBtn').addEventListener('click', logout);
             } else {
                 headerRight.innerHTML = `
-                    <button class="login-btn" id="loginBtn">Login</button>
+                    <a href="login.html" class="login-btn">Login</a>
                 `;
-                
-                // Add event listener to the login button
-                document.getElementById('loginBtn').addEventListener('click', () => {
-                    loginModal.style.display = 'flex';
-                });
             }
         }
 
@@ -967,7 +875,7 @@
                 button.addEventListener('click', function() {
                     if (!currentUser) {
                         alert('Please login to edit positions');
-                        loginModal.style.display = 'flex';
+                        window.location.href = 'login.html';
                         return;
                     }
                     const positionId = parseInt(this.getAttribute('data-id'));
@@ -1018,7 +926,7 @@
                 button.addEventListener('click', function() {
                     if (!currentUser) {
                         alert('Please login to review applicants');
-                        loginModal.style.display = 'flex';
+                        window.location.href = 'login.html';
                         return;
                     }
                     const applicantId = parseInt(this.getAttribute('data-id'));
@@ -1031,7 +939,7 @@
         function openCreatePositionModal() {
             if (!currentUser) {
                 alert('Please login to create positions');
-                loginModal.style.display = 'flex';
+                window.location.href = 'login.html';
                 return;
             }
             
@@ -1177,28 +1085,6 @@
             renderApplicants(applicantSearch.value);
         }
 
-        // Login functionality
-        function login(username, password) {
-            // Simple authentication (in a real app, this would call an API)
-            if (username === 'John Smith' && password === 'password') {
-                currentUser = {
-                    username: 'John Smith',
-                    role: 'admin'
-                };
-                
-                // Save to localStorage to persist across page refreshes
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Update UI
-                updateHeader();
-                loginModal.style.display = 'none';
-                
-                alert('Login successful! Welcome back, John Smith.');
-            } else {
-                alert('Invalid username or password. Please try again.\n\nDemo credentials:\nUsername: admin\nPassword: password');
-            }
-        }
-
         // Logout functionality
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
@@ -1218,14 +1104,6 @@
         applicantSearch.addEventListener('input', filterApplicants);
         deletePositionBtn.addEventListener('click', deletePosition);
 
-        // Login form submission
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-            login(username, password);
-        });
-
         // Add real-time date validation
         endDateInput.addEventListener('change', function() {
             if (!validateDate(this.value)) {
@@ -1235,13 +1113,10 @@
             }
         });
 
-        // Close modals when clicking outside
+        // Close modal when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
-            }
-            if (e.target === loginModal) {
-                loginModal.style.display = 'none';
             }
         });
 
