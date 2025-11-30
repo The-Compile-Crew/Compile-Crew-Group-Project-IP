@@ -8,6 +8,7 @@ from App.controllers import (
     login,
     create_user,
 )
+from App.controllers.controllers.simple_auth import simple_login, simple_signup
 
 auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
@@ -16,7 +17,27 @@ auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
 '''
 Page/Action Routes
-'''    
+'''
+# Simple login/signup routes (for the login.html form)
+@auth_views.route('/simple_login', methods=['POST'])
+def simple_login_route():
+    return simple_login()
+
+@auth_views.route('/simple_signup', methods=['POST'])
+def simple_signup_route():
+    return simple_signup()
+
+@auth_views.route('/student-dashboard')
+def student_dashboard():
+    return render_template('StudentDashboard.html')
+
+@auth_views.route('/employerdashboard')
+def employer_dashboard():
+    return render_template('Employer dashboard.html')
+
+@auth_views.route('/StaffDashboard')
+def staff_dashboard():
+    return render_template('StaffDashboard.html')
 
 @auth_views.route('/identify', methods=['GET'])
 @jwt_required()
