@@ -116,11 +116,16 @@
             padding: 8px;
         }
 
+        .hidden-by-filter {
+            display: none !important;
+        }
+
         /* New adjustments */
         .right-panel {
             margin-top: 40px;
         }
     </style>
+
 </head>
 <body>
     <!-- Top Header -->
@@ -147,9 +152,9 @@
                 <h4>Positions</h4>
             </div>
             
-            <input type="text" placeholder="Search positions..." class="browser-default search-bar" style="margin-bottom: 15px;">
+            <input id="position-search" type="text" placeholder="Search positions..." class="browser-default search-bar" style="margin-bottom: 15px;">
             
-            <div class="widget-grid">
+            <div class="widget-grid" id="positions-grid">
                 <!-- Position Widget 1 -->
                 <div class="widget">
                     <div class="position-name">Software Developer</div>
@@ -165,6 +170,8 @@
                     <div class="position-capacity">Capacity: 1/3</div>
                     <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
                 </div>
+
+
             </div>
         </div>
         
@@ -207,5 +214,143 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+        (function() {
+        const searchInput = document.getElementById('position-search');
+        const positionsGrid = document.getElementById('positions-grid');
+        if (!searchInput || !positionsGrid) return;
+
+        const positionCards = Array.from(positionsGrid.querySelectorAll('.widget'));
+
+        // Simple debounce helper
+        function debounce(fn, delay) {
+            let t;
+            return (...args) => {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function normalize(s) {
+            return (s || '').toString().toLowerCase().trim();
+        }
+
+        function filterPositions() {
+            const q = normalize(searchInput.value);
+            if (!q) {
+                // show all
+                positionCards.forEach(card => card.classList.remove('hidden-by-filter'));
+                return;
+            }
+
+            positionCards.forEach(card => {
+                const title = normalize(card.querySelector('.position-name')?.textContent);
+                const desc  = normalize(card.querySelector('.position-description')?.textContent);
+                const capacity = normalize(card.querySelector('.position-capacity')?.textContent);
+
+                // match if query exists in title OR description OR capacity text
+                const matched = title.includes(q) || desc.includes(q) || capacity.includes(q);
+                if (matched) {
+                    card.classList.remove('hidden-by-filter');
+                } else {
+                    card.classList.add('hidden-by-filter');
+                }
+            });
+        }
+
+        const debouncedFilter = debounce(filterPositions, 150);
+
+        // events
+        searchInput.addEventListener('input', debouncedFilter);
+        searchInput.addEventListener('search', debouncedFilter); // for browsers that support search event
+
+        // optional: allow ESC to clear
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                filterPositions();
+            }
+        });
+    })();
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const shortlistGrid = document.querySelector(".right-panel .widget-grid");
+
+        function createShortlistCard(name) {
+            const card = document.createElement("div");
+            card.classList.add("student-widget");
+
+            card.innerHTML = `
+                <div class="student-info">
+                    <div class="student-name">${name}</div>
+                    <div class="student-status">Status: Shortlisted</div>
+                </div>
+                <button class="btn red waves-effect waves-light delist-btn">Delist</button>
+            `;
+
+            // Add delete (delist) functionality
+            card.querySelector(".delist-btn").addEventListener("click", () => {
+                card.remove();
+            });
+
+            return card;
+        }
+
+        // Add event listeners to all "Add to Shortlist" buttons
+        document.querySelectorAll(".widget .btn.purple").forEach(button => {
+            button.addEventListener("click", () => {
+                const positionCard = button.closest(".widget");
+                const positionName = positionCard.querySelector(".position-name").textContent;
+
+                // Create a fake applicant based on the position
+                const applicantName = positionName + " Applicant";
+
+                // Add to shortlist panel
+                shortlistGrid.appendChild(createShortlistCard(applicantName));
+            });
+        });
+    });
+
+   
+
+
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+        /* -------------------------------
+        APPLICANT SEARCH (RIGHT PANEL)
+        --------------------------------*/
+        const applicantSearch = document.querySelector(
+            '.right-panel-header .search-bar'
+        );
+
+        const applicantWidgets = document.querySelectorAll(
+            ".right-panel .student-widget"
+        );
+
+        applicantSearch.addEventListener("input", () => {
+            const searchValue = applicantSearch.value.toLowerCase();
+
+            applicantWidgets.forEach(widget => {
+                const name = widget.querySelector(".student-name").textContent.toLowerCase();
+                const status = widget.querySelector(".student-status").textContent.toLowerCase();
+
+                if (name.includes(searchValue) || status.includes(searchValue)) {
+                    widget.classList.remove("hidden-by-filter");
+                } else {
+                    widget.classList.add("hidden-by-filter");
+                }
+            });
+        });
+
+    });
+    
+
+
+    </script>
+
 </body>
 </html>
