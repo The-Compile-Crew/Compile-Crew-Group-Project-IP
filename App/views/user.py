@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, jsonify, request, send_from_directory, flash, redirect, url_for
 from flask_jwt_extended import jwt_required, current_user as jwt_current_user
+from flask_jwt_extended import jwt_required, current_user
+from App.controllers import ( add_student_to_shortlist, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position)
+
 
 from.index import index_views
 
@@ -38,3 +41,13 @@ def create_user_endpoint():
 @user_views.route('/static/users', methods=['GET'])
 def static_user_page():
   return send_from_directory('static', 'static-user.html')
+
+
+@user_views.route('/api/me', methods=['GET'])
+@jwt_required()
+def get_me():
+    return jsonify({
+        "id": current_user.id,
+        "username": current_user.username,
+        "role": current_user.role
+    }), 200
