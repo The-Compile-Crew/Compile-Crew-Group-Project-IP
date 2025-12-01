@@ -126,6 +126,8 @@
         }
     </style>
 
+
+
 </head>
 <body>
     <!-- Top Header -->
@@ -144,6 +146,8 @@
         </div>
     </div>
 
+
+
     <!-- Main Content -->
     <div class="dashboard-content">
         <!-- Left Panel - Positions -->
@@ -159,16 +163,16 @@
                 <div class="widget">
                     <div class="position-name">Software Developer</div>
                     <div class="position-description">Develop web applications</div>
-                    <div class="position-capacity">Capacity: 2/5</div>
-                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
+                    <div id="capacity-1" class="position-capacity"></div>
+                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;" onclick="addToShortlist(1)">Add to Shortlist</button>
                 </div>
                 
                 <!-- Position Widget 2 -->
                 <div class="widget">
                     <div class="position-name">Data Analyst</div>
                     <div class="position-description">Analyze business data</div>
-                    <div class="position-capacity">Capacity: 1/3</div>
-                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;">Add to Shortlist</button>
+                    <div id="capacity-2" class="position-capacity"></div>
+                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;" onclick="addToShortlist(2)">Add to Shortlist</button>
                 </div>
 
 
@@ -189,25 +193,16 @@
                         <div class="student-name">John Smith</div>
                         <div class="student-status">Status: Applied</div>
                     </div>
-                    <button class="btn red waves-effect waves-light">Delist</button>
+                    <button class="btn red waves-effect waves-light delist-btn" onclick="delist(1)">Delist</button>
                 </div>
                 
                 <!-- Applicant Widget 2 -->
                 <div class="student-widget">
                     <div class="student-info">
-                        <div class="student-name">Sarah Johnson</div>
-                        <div class="student-status">Status: Shortlisted</div>
-                    </div>
-                    <button class="btn red waves-effect waves-light">Delist</button>
-                </div>
-                
-                <!-- Applicant Widget 3 -->
-                <div class="student-widget">
-                    <div class="student-info">
                         <div class="student-name">Mike Chen</div>
                         <div class="student-status">Status: Applied</div>
                     </div>
-                    <button class="btn red waves-effect waves-light">Delist</button>
+                    <button class="btn red waves-effect waves-light delist-btn" onclick="delist(2)">Delist</button>
                 </div>
             </div>
         </div>
@@ -215,7 +210,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
+    
     <script>
+        //Searching for positions in the left panel\\
+        //                                          \\
+        //-------------------------------------------\\
+
         (function() {
         const searchInput = document.getElementById('position-search');
         const positionsGrid = document.getElementById('positions-grid');
@@ -223,7 +223,7 @@
 
         const positionCards = Array.from(positionsGrid.querySelectorAll('.widget'));
 
-        // Simple debounce helper
+        //debounce helper
         function debounce(fn, delay) {
             let t;
             return (...args) => {
@@ -239,7 +239,6 @@
         function filterPositions() {
             const q = normalize(searchInput.value);
             if (!q) {
-                // show all
                 positionCards.forEach(card => card.classList.remove('hidden-by-filter'));
                 return;
             }
@@ -263,9 +262,9 @@
 
         // events
         searchInput.addEventListener('input', debouncedFilter);
-        searchInput.addEventListener('search', debouncedFilter); // for browsers that support search event
+        searchInput.addEventListener('search', debouncedFilter); 
 
-        // optional: allow ESC to clear
+        // allow ESC to clear
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 searchInput.value = '';
@@ -274,55 +273,42 @@
         });
     })();
     </script>
+
+
     <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const shortlistGrid = document.querySelector(".right-panel .widget-grid");
+        //--------Remove from shortlist --------\\
+       //-----------------------------------------------------------\\
+        document.addEventListener("DOMContentLoaded", () => {
 
-        function createShortlistCard(name) {
-            const card = document.createElement("div");
-            card.classList.add("student-widget");
-
-            card.innerHTML = `
-                <div class="student-info">
-                    <div class="student-name">${name}</div>
-                    <div class="student-status">Status: Shortlisted</div>
-                </div>
-                <button class="btn red waves-effect waves-light delist-btn">Delist</button>
-            `;
-
-            // Add delete (delist) functionality
-            card.querySelector(".delist-btn").addEventListener("click", () => {
-                card.remove();
+            //Delist student from shortlist
+            document.querySelectorAll(".student-widget .delist-btn").forEach(button => {
+                button.addEventListener("click", () => {
+                    button.closest(".student-widget").remove();
+                });
             });
 
-            return card;
-        }
 
-        // Add event listeners to all "Add to Shortlist" buttons
-        document.querySelectorAll(".widget .btn.purple").forEach(button => {
-            button.addEventListener("click", () => {
-                const positionCard = button.closest(".widget");
-                const positionName = positionCard.querySelector(".position-name").textContent;
+            document.querySelectorAll(".widget .btn.purple").forEach(button => {
+                button.addEventListener("click", () => {
+                    const positionCard = button.closest(".widget");
+                    const positionName = positionCard.querySelector(".position-name").textContent;
 
-                // Create a fake applicant based on the position
-                const applicantName = positionName + " Applicant";
+                    const applicantName = positionName + " Applicant";
 
-                // Add to shortlist panel
-                shortlistGrid.appendChild(createShortlistCard(applicantName));
+                    shortlistGrid.appendChild(createShortlistCard(applicantName));
+                });
             });
+
         });
-    });
 
-   
-
-
+    
     </script>
     <script>
+
+        //--------Applicant Search (Right Panel)--------\\
+       //------------------------------------------------\\
     document.addEventListener("DOMContentLoaded", () => {
 
-        /* -------------------------------
-        APPLICANT SEARCH (RIGHT PANEL)
-        --------------------------------*/
         const applicantSearch = document.querySelector(
             '.right-panel-header .search-bar'
         );
@@ -345,11 +331,128 @@
                 }
             });
         });
-
     });
-    
+    </script>
+
+    <script>
+
+        //---------Fetch and display current user's username---------\\
+       //----------may not be working properly----------\\
+      // 
+        document.addEventListener("DOMContentLoaded", () => {
+
+            // Get the JWT token from localStorage
+            const token = localStorage.getItem("access_token"); 
+
+            if (!token) {
+                console.log("No JWT token found, user may not be logged in.");
+                return;
+            }
+
+            // Fetch current user info from backend
+            fetch("/api/me", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to fetch user info");
+                return response.json();
+            })
+            .then(data => {
+                // Update the username in the dashboard
+                const usernameSpan = document.querySelector(".profile-section span");
+                if (usernameSpan) {
+                    usernameSpan.textContent = data.username || "Unknown User";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching current user:", error);
+            });
+
+        });
+    </script>
 
 
+    <script>
+        //---------Logout Functionality---------\\
+        const logoutBtn = document.querySelector(".logout-section button");
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+
+                localStorage.removeItem("access_token");
+
+                localStorage.removeItem("refresh_token");
+                M.toast({html: "Logging out...", classes: "blue"});
+
+                window.location.href = "/login";  
+            });
+        }
+
+    </script>
+
+
+    <script>
+        //gloabal state for position capacities
+        const positionCapacityState = {
+            1: { current: 1, max: 5 },
+            2: { current: 1, max: 3 }
+        };
+
+        //update capacity UI
+        function updateCapacityUI(positionId) {
+            const state = positionCapacityState[positionId];
+            const element = document.getElementById(`capacity-${positionId}`);
+
+            if (element) {
+                element.textContent = `Capacity: ${state.current}/${state.max}`;
+            }
+        }
+
+        //initial UI update
+        function addToShortlist(positionId) {
+            const state = positionCapacityState[positionId];
+
+            if (state.current >= state.max) {
+                M.toast({ html: 'Position is already at full capacity.', classes: 'red' });
+                return;
+            }
+
+            state.current++;
+            updateCapacityUI(positionId);
+            checkCapacityLimit(positionId);
+                    
+        }
+
+        function checkCapacityLimit(positionId) {
+            const state = positionCapacityState[positionId];
+            const button = document.getElementById(`add-btn-${positionId}`);
+
+            if (!button) return;
+
+            if (state.current >= state.max) {
+                button.disabled = true;
+                button.classList.add("grey");
+                button.innerText = "Full";
+            } else {
+                button.disabled = false;
+                button.classList.remove("grey");
+                button.innerText = "Add to Shortlist";
+            }
+        }
+
+
+        //delist student from position
+        function delist(positionId) {
+            // Decrease count
+            positionCapacityState[positionId].current--;
+
+            // Update UI
+            updateCapacityUI(positionId);
+        }
     </script>
 
 </body>
