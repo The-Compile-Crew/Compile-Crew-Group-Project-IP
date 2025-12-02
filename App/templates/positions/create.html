@@ -238,7 +238,7 @@
                 </div>
                 
                 <div class="form-actions">
-                    <a href="/employerdashboard" class="btn btn-secondary">Cancel</a>
+                    <a href="{{ url_for('auth_views.employer_dashboard') }}" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">
                         {% if position %}
                             Update Position

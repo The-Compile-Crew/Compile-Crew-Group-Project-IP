@@ -310,10 +310,10 @@
             <span class="back-text">Return to Dashboard</span>
         </div>
         
-        <div class="position-name" id="positionName">Frontend Developer</div>
+        <div class="position-name" id="positionName">{{ shortlist.position.title }}</div>
         <div class="student-name" id="studentName">
-            John Smith 
-            <span class="current-status status-applied" id="currentStatus">Applied</span>
+            {{ shortlist.student.username }}
+            <span class="current-status status-{{ shortlist.status.value }}" id="currentStatus">{{ shortlist.status.value|capitalize }}</span>
         </div>
         
         <!-- Progress Bar -->
@@ -336,52 +336,39 @@
         
         <div class="application-details">
             <div class="section-title">Application Details</div>
-            
             <div class="detail-row">
                 <div class="detail-label">Email:</div>
-                <div class="detail-value" id="applicantEmail">john.smith@email.com</div>
+                <div class="detail-value">{{ shortlist.student.email }}</div>
             </div>
-            
             <div class="detail-row">
                 <div class="detail-label">Phone:</div>
-                <div class="detail-value" id="applicantPhone">+1 (555) 123-4567</div>
+                <div class="detail-value">{{ shortlist.student.phone }}</div>
             </div>
-            
             <div class="detail-row">
-                <div class="detail-label">Applied Date:</div>
-                <div class="detail-value" id="appliedDate">January 15, 2024</div>
+                <div class="detail-label">Degree:</div>
+                <div class="detail-value">{{ shortlist.student.degree }}</div>
             </div>
-            
             <div class="detail-row">
-                <div class="detail-label">Experience:</div>
-                <div class="detail-value" id="experience">3 years</div>
+                <div class="detail-label">GPA:</div>
+                <div class="detail-value">{{ shortlist.student.gpa }}</div>
             </div>
-            
             <div class="detail-row">
-                <div class="detail-label">Education:</div>
-                <div class="detail-value" id="education">Bachelor's in Computer Science</div>
+                <div class="detail-label">Resume:</div>
+                <div class="detail-value">{{ shortlist.student.resume }}</div>
             </div>
-            
             <div class="detail-row">
-                <div class="detail-label">Skills:</div>
-                <div class="detail-value">
-                    <div class="skills-container" id="skillsContainer">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="notes-section">
-                <div class="section-title">Notes</div>
-                <div class="notes-content" id="applicantNotes">
-                    Strong portfolio with modern React projects. Excellent communication skills and team player.
-                    Has experience with agile development methodologies.
-                </div>
+                <div class="detail-label">Position Description:</div>
+                <div class="detail-value">{{ shortlist.position.description }}</div>
             </div>
         </div>
         
         <div class="action-buttons">
-            <button class="btn btn-accept" onclick="updateStatus('Accepted')">Accept</button>
-            <button class="btn btn-reject" onclick="updateStatus('Rejected')">Reject</button>
+            <form method="POST" action="{{ url_for('shortlist_views.shortlist_decide') }}">
+                <input type="hidden" name="student_user_id" value="{{ shortlist.student.user_id }}">
+                <input type="hidden" name="position_id" value="{{ shortlist.position.id }}">
+                <button class="btn btn-accept" type="submit" name="decision" value="accepted">Accept</button>
+                <button class="btn btn-reject" type="submit" name="decision" value="rejected">Reject</button>
+            </form>
         </div>
     </div>
     

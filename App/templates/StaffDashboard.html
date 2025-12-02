@@ -159,23 +159,14 @@
             <input id="position-search" type="text" placeholder="Search positions..." class="browser-default search-bar" style="margin-bottom: 15px;">
             
             <div class="widget-grid" id="positions-grid">
-                <!-- Position Widget 1 -->
+                {% for position in positions %}
                 <div class="widget">
-                    <div class="position-name">Software Developer</div>
-                    <div class="position-description">Develop web applications</div>
-                    <div id="capacity-1" class="position-capacity"></div>
-                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;" onclick="addToShortlist(1)">Add to Shortlist</button>
+                    <div class="position-name">{{ position.title }}</div>
+                    <div class="position-description">{{ position.description }}</div>
+                    <div class="position-capacity">Capacity: {{ position.number_of_positions }}</div>
+                    <a class="btn purple waves-effect waves-light" style="margin-top: 10px;" href="{{ url_for('shortlist_views.show_add_to_shortlist', position_id=position.id) }}">Add to Shortlist</a>
                 </div>
-                
-                <!-- Position Widget 2 -->
-                <div class="widget">
-                    <div class="position-name">Data Analyst</div>
-                    <div class="position-description">Analyze business data</div>
-                    <div id="capacity-2" class="position-capacity"></div>
-                    <button class="btn purple waves-effect waves-light" style="margin-top: 10px;" onclick="addToShortlist(2)">Add to Shortlist</button>
-                </div>
-
-
+                {% endfor %}
             </div>
         </div>
         
@@ -204,6 +195,25 @@
                     </div>
                     <button class="btn red waves-effect waves-light delist-btn" onclick="delist(2)">Delist</button>
                 </div>
+            </div>
+
+            <!-- Student Users Section -->
+            <div class="panel-header">
+                <h4>Student Users</h4>
+                <button class="btn blue" onclick="document.getElementById('student-users-list').style.display='block'">Show All</button>
+            </div>
+            <div id="student-users-list" style="display:none; margin-bottom:20px;">
+                <table class="striped">
+                    <thead>
+                        <tr><th>Username</th><th>Student ID</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr><td>{{ student.username }}</td><td>{{ student.student_id }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button class="btn grey" onclick="document.getElementById('student-users-list').style.display='none'">Hide</button>
             </div>
         </div>
     </div>

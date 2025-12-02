@@ -59,7 +59,11 @@ def employer_dashboard():
 @auth_views.route('/StaffDashboard')
 def staff_dashboard():
     username = session.get('username')
-    return render_template('StaffDashboard.html', username=username)
+    from App.models.student import Student
+    from App.models.position import Position
+    students = Student.query.all()
+    positions = Position.query.all()
+    return render_template('StaffDashboard.html', username=username, students=students, positions=positions)
 
 
 @auth_views.route('/login', methods=['POST'])

@@ -45,16 +45,10 @@
       <span class="back-text">Return to Dashboard</span>
     </div>
 
-    <form>
-      <label for="student_name">Student Name</label>
-      <input id="student_name" name="student_name" type="text" placeholder="Enter student name">
-
-      <label for="student_id">Student ID</label>
-      <input id="student_id" name="student_id" type="text" placeholder="Enter student ID">
-
-      <label for="details">Details</label>
-      <textarea id="details" name="details" rows="4" placeholder="Enter details"></textarea>
-
+    <form method="POST" action="{{ url_for('shortlist_views.add_student_shortlist') }}">
+      <input type="hidden" name="position_id" value="{{ position.id }}">
+      <label for="student_user_id">Student User ID</label>
+      <input id="student_user_id" name="student_user_id" type="text" placeholder="Enter student user ID" required>
       <button type="submit" class="btn">Add to Shortlist</button>
     </form>
   </div>

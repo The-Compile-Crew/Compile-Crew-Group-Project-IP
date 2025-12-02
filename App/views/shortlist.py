@@ -1,12 +1,33 @@
-from flask import Blueprint, request, redirect, url_for, flash, session
+# Route to show decision page for a student's application
+from flask import Blueprint, request, redirect, url_for, flash, session, render_template
+shortlist_views = Blueprint('shortlist_views', __name__)
 from App.controllers import (
-    add_student_to_shortlist,
-    decide_shortlist,
-    get_shortlist_by_student,
-    get_shortlist_by_position
+     add_student_to_shortlist,
+     decide_shortlist,
+     get_shortlist_by_student,
+     get_shortlist_by_position
 )
 
-shortlist_views = Blueprint('shortlist_views', __name__)
+# Route to show decision page for a student's application
+@shortlist_views.route('/shortlist/decision/<int:student_id>/<int:position_id>', methods=['GET'])
+def view_decision(student_id, position_id):
+    from App.models.shortlist import Shortlist
+    shortlist = Shortlist.query.filter_by(student_id=student_id, position_id=position_id).first_or_404()
+    return render_template('decision.html', shortlist=shortlist)
+# Route to review a student application for a position
+@shortlist_views.route('/shortlist/review/<int:student_id>/<int:position_id>', methods=['GET'])
+def review_application(student_id, position_id):
+    from App.models.shortlist import Shortlist
+    shortlist = Shortlist.query.filter_by(student_id=student_id, position_id=position_id).first_or_404()
+    return render_template('review.html', shortlist=shortlist)
+# Route to show addtoshortlist.html for a given position
+@shortlist_views.route('/shortlist/add/<int:position_id>', methods=['GET'])
+def show_add_to_shortlist(position_id):
+    from App.models.position import Position
+    position = Position.query.get_or_404(position_id)
+    return render_template('addtoshortlist.html', position=position)
+
+
 
 # UI-only mode: all routes return HTML or redirects (no JSON APIs)
 

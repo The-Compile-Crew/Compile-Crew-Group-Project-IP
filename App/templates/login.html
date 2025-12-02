@@ -78,26 +78,31 @@
                     <input type="text" id="new-username" name="username" class="validate" required>
                     <label for="new-username">Choose Username</label>
                 </div>
-                
+
                 <div class="input-field">
-                    <select id="new-user-type" name="userType" class="browser-default" required>
+                    <select id="new-user-type" name="userType" class="browser-default" required onchange="toggleStudentIdField()">
                         <option value="" disabled selected>Choose user type</option>
                         <option value="student">Student</option>
                         <option value="employer">Employer</option>
                         <option value="staff">Staff</option>
                     </select>
                 </div>
-                
+
+                <div class="input-field" id="student-id-field" style="display:none;">
+                    <input type="text" id="student-id" name="student_id" class="validate">
+                    <label for="student-id">Student ID</label>
+                </div>
+
                 <div class="input-field">
                     <input type="password" id="new-password" name="password" class="validate" required>
                     <label for="new-password">Password</label>
                 </div>
-                
+
                 <div class="input-field">
                     <input type="password" id="confirm-password" class="validate" required>
                     <label for="confirm-password">Confirm Password</label>
                 </div>
-                
+
                 <div class="modal-footer">
                     <a href="#!" class="modal-close waves-effect waves-grey btn-flat">Cancel</a>
                     <button type="submit" class="waves-effect waves-light btn purple">Create Account</button>
@@ -119,6 +124,17 @@
             var modal = M.Modal.getInstance(document.getElementById('signup-modal'));
             modal.open();
         });
+
+        // Toggle Student ID field visibility based on user type
+        function toggleStudentIdField() {
+            var userType = document.getElementById('new-user-type').value;
+            var studentIdField = document.getElementById('student-id-field');
+            if (userType === 'student') {
+                studentIdField.style.display = 'block';
+            } else {
+                studentIdField.style.display = 'none';
+            }
+        }
 
         // Create account button handler
         document.getElementById('create-account-btn').addEventListener('click', function() {

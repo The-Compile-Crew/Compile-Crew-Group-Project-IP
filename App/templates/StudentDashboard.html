@@ -388,25 +388,22 @@
             </div>
             
             <div class="widget-grid" id="positions-container">
-                {% if applications and applications|length > 0 %}
-                    {% for app in applications %}
-                        <div class="widget" data-position="{{ app.title|lower }}" data-company="{{ app.position.employer.username if app.position and app.position.employer else '' }}" data-app-id="{{ app.id }}">
-                            {% set status = app.status.value if app.status is not none else (app.get_status() if app.get_status is defined else '') %}
-                            <div class="position-name">{{ app.title }}</div>
-                            {% if app.position and app.position.employer %}
-                                <div class="position-company" style="color: #7f8c8d; font-size: 14px; margin-bottom: 5px;">{{ app.position.employer.username }}</div>
-                            {% endif %}
-                            <div class="position-description">{{ app.position.description if app.position and app.position.description else '' }}</div>
-                            <div class="position-status">Status: <span class="status-badge">{{ status }}</span></div>
-                            <button class="view-response-btn" data-app-id="{{ app.id }}" data-status="{{ status }}">View Response</button>
+                    {% if applications and applications|length > 0 %}
+                        {% for app in applications %}
+                        <div class="application-card">
+                            <div class="application-title">{{ app.position.title }}</div>
+                            <div class="application-status">Status: {{ app.status.value|capitalize }}</div>
+                            <form method="GET" action="{{ url_for('shortlist_views.view_decision', student_id=app.student.user_id, position_id=app.position.id) }}">
+                                <button class="btn blue" type="submit">View Response</button>
+                            </form>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="no-results">
-                        <p>You haven't applied to any positions yet.</p>
-                        <p>Check back later or apply for new opportunities!</p>
-                    </div>
-                {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">
+                            <p>No applications found</p>
+                            <p>Apply to positions to see your applications here.</p>
+                        </div>
+                    {% endif %}
             </div>
             
             <div id="no-results" class="no-results" style="display: none;">

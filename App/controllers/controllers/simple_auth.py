@@ -47,15 +47,22 @@ def simple_signup():
     username = request.form.get('username')
     password = request.form.get('password')
     user_type = request.form.get('userType')
-    
+    student_id = request.form.get('student_id')
+
     # Check if username already exists
     if User.query.filter_by(username=username).first():
         return "Username already exists", 400
-    
+
     # Create new user
-    result = create_user(username, password, user_type)
-    
-    if result:
-        return "Account created! You can now login.", 201
+    if user_type == 'student':
+        result = create_user(username, password, user_type, student_id)
     else:
-        return "Account creation failed", 400
+        result = create_user(username, password, user_type)
+
+    from flask import flash, redirect, url_for
+    if result:
+        flash("Account created! You can now login.", "success")
+        return redirect(url_for('index_views.index_page'))
+    else:
+        flash("Account creation failed", "error")
+        return redirect(url_for('index_views.index_page'))
