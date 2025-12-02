@@ -229,19 +229,20 @@
         
         .modal-content {
             background-color: white;
-            padding: 30px;
             border-radius: 8px;
-            width: 500px;
-            max-width: 90%;
+            width: 800px;
+            max-width: 95%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
         }
         
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            padding: 20px 30px;
             border-bottom: 1px solid #eee;
         }
         
@@ -259,8 +260,14 @@
             color: #7f8c8d;
         }
         
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        
         .response-details {
-            margin: 20px 0;
+            margin: 0;
         }
         
         .response-details p {
@@ -270,7 +277,8 @@
         .modal-footer {
             display: flex;
             justify-content: flex-end;
-            margin-top: 20px;
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
         }
         
         .modal-close {
@@ -289,6 +297,57 @@
             color: #7f8c8d;
             border-top: 1px solid #eee;
         }
+        
+        /* Scrollbar styling for modal */
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -298,8 +357,8 @@
             <div class="logo">Internship Platform</div>
             <div class="header-right">
                 <div class="user-info">
-                    <div class="profile-icon" id="profile-icon">JD</div>
-                    <div class="username" id="username-display">John Doe</div>
+                    <div class="profile-icon" id="profile-icon">S</div>
+                    <div class="username" id="username-display">Student</div>
                 </div>
                 <button class="logout-btn" id="logout-btn">Logout</button>
             </div>
@@ -310,6 +369,11 @@
     <div class="container">
         <h1 class="dashboard-title">Student Dashboard</h1>
         
+        <!-- Error Message Display -->
+        <div class="error-message" id="error-message">
+            <strong>Error:</strong> <span id="error-text"></span>
+        </div>
+        
         <div class="dashboard-content">
             <div class="section-header">
                 <div class="section-label">Shortlisted Positions</div>
@@ -317,38 +381,14 @@
             
             <input type="text" id="search-input" placeholder="Search positions..." class="search-bar">
             
+            <!-- Loading indicator -->
+            <div class="loading" id="loading-indicator">
+                <div class="spinner"></div>
+                <p>Loading applications...</p>
+            </div>
+            
             <div class="widget-grid" id="positions-container">
-                <!-- Position Widget 1 -->
-                <div class="widget" data-position="Software Developer Intern">
-                    <div class="position-name">Software Developer Intern</div>
-                    <div class="position-description">Develop and maintain web applications using modern frameworks. Work with a team of experienced developers.</div>
-                    <div class="position-status">Status: <span class="status-badge status-pending">Under Review</span></div>
-                    <button class="view-response-btn" data-position="Software Developer Intern" data-status="pending">View Response</button>
-                </div>
-                
-                <!-- Position Widget 2 -->
-                <div class="widget" data-position="Data Analyst">
-                    <div class="position-name">Data Analyst</div>
-                    <div class="position-description">Analyze business data and create reports. Work with SQL, Python, and data visualization tools.</div>
-                    <div class="position-status">Status: <span class="status-badge status-accepted">Interview Scheduled</span></div>
-                    <button class="view-response-btn" data-position="Data Analyst" data-status="accepted">View Response</button>
-                </div>
-                
-                <!-- Position Widget 3 -->
-                <div class="widget" data-position="UX Designer">
-                    <div class="position-name">UX Designer</div>
-                    <div class="position-description">Design user interfaces and experiences for web and mobile applications. Create wireframes and prototypes.</div>
-                    <div class="position-status">Status: <span class="status-badge status-rejected">Application Rejected</span></div>
-                    <button class="view-response-btn" data-position="UX Designer" data-status="rejected">View Response</button>
-                </div>
-                
-                <!-- Position Widget 4 -->
-                <div class="widget" data-position="Marketing Intern">
-                    <div class="position-name">Marketing Intern</div>
-                    <div class="position-description">Assist in creating marketing campaigns, social media management, and content creation.</div>
-                    <div class="position-status">Status: <span class="status-badge status-pending">Under Review</span></div>
-                    <button class="view-response-btn" data-position="Marketing Intern" data-status="pending">View Response</button>
-                </div>
+                <!-- Applications will be loaded dynamically -->
             </div>
             
             <div id="no-results" class="no-results" style="display: none;">
@@ -364,11 +404,20 @@
                 <div class="modal-title">Application Response</div>
                 <button class="close-modal" id="close-modal">&times;</button>
             </div>
-            <div class="response-details">
-                <p><strong>Position:</strong> <span id="modal-position-name"></span></p>
-                <p><strong>Status:</strong> <span id="modal-status"></span></p>
-                <div id="modal-details">
-                    <!-- Dynamic content will be inserted here -->
+            <div class="modal-body">
+                <!-- Loading indicator for modal -->
+                <div class="loading" id="modal-loading">
+                    <div class="spinner"></div>
+                    <p>Loading response details...</p>
+                </div>
+                
+                <div class="response-details" id="modal-response-details" style="display: none;">
+                    <p><strong>Position:</strong> <span id="modal-position-name"></span></p>
+                    <p><strong>Company:</strong> <span id="modal-company"></span></p>
+                    <p><strong>Status:</strong> <span id="modal-status"></span></p>
+                    <div id="modal-details">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -382,160 +431,497 @@
     </footer>
 
     <script>
+        // API Configuration
+        const API_BASE_URL = '/api';
+        
         // Initialize components when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            const currentUser = {
-                username: "John Doe",
-                email: "john.doe@example.com"
-            };
-            
-            // Set the username in the header
-            document.getElementById('username-display').textContent = currentUser.username;
-            document.getElementById('profile-icon').textContent = currentUser.username.charAt(0).toUpperCase();
-            
-            // Logout functionality
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to logout?')) {
-                    window.location.href = 'login.html'; // Redirect to login page
-                }
-            });
+            // Load user info and applications
+            loadUserInfo();
+            loadApplications();
             
             // Search functionality
             const searchInput = document.getElementById('search-input');
-            const positionsContainer = document.getElementById('positions-container');
-            const noResultsMessage = document.getElementById('no-results');
-            const positionWidgets = document.querySelectorAll('.widget');
-            
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                let hasResults = false;
-                
-                positionWidgets.forEach(widget => {
-                    const positionName = widget.getAttribute('data-position').toLowerCase();
-                    
-                    if (positionName.includes(searchTerm)) {
-                        widget.style.display = 'block';
-                        hasResults = true;
-                    } else {
-                        widget.style.display = 'none';
-                    }
-                });
-                
-                // Show/hide no results message
-                if (hasResults || searchTerm === '') {
-                    noResultsMessage.style.display = 'none';
-                } else {
-                    noResultsMessage.style.display = 'block';
-                }
-            });
+            if (searchInput) {
+                searchInput.addEventListener('input', filterApplications);
+            }
             
             // Modal functionality
             const modal = document.getElementById('response-modal');
             const closeModalBtn = document.getElementById('close-modal');
             const modalCloseBtn = document.getElementById('modal-close-btn');
             
-            // View Response button functionality
-            const viewResponseButtons = document.querySelectorAll('.view-response-btn');
+            function closeModal() {
+                if (modal) modal.style.display = 'none';
+            }
             
-            viewResponseButtons.forEach(button => {
+            if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+            if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+            
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) closeModal();
+            });
+            
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal && modal.style.display === 'flex') {
+                    closeModal();
+                }
+            });
+            
+            // Logout functionality
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    window.location.href = '/logout';
+                });
+            }
+        });
+        
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            if (errorDiv && errorText) {
+                errorText.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        // Function to hide error message
+        function hideError() {
+            const errorDiv = document.getElementById('error-message');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+        }
+        
+        // Function to load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/user`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        const usernameDisplay = document.getElementById('username-display');
+                        const profileIcon = document.getElementById('profile-icon');
+                        
+                        if (usernameDisplay && data.user.name) {
+                            usernameDisplay.textContent = data.user.name;
+                        }
+                        
+                        if (profileIcon && data.user.name) {
+                            profileIcon.textContent = data.user.name.charAt(0).toUpperCase();
+                        }
+                    }
+                } else if (response.status === 401) {
+                    // Not authenticated, redirect to login
+                    window.location.href = '/login';
+                    return;
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                // Don't show error for user info, just use default
+            }
+        }
+        
+        // Function to load applications
+        async function loadApplications() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const positionsContainer = document.getElementById('positions-container');
+            
+            try {
+                hideError();
+                if (loadingIndicator) loadingIndicator.style.display = 'block';
+                if (positionsContainer) positionsContainer.innerHTML = '';
+                
+                const response = await fetch(`${API_BASE_URL}/applications`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.success && data.applications) {
+                        renderApplications(data.applications);
+                    } else {
+                        showError('Failed to load applications. Please try again.');
+                        renderApplications([]);
+                    }
+                } else if (response.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                showError('Could not connect to server. Showing demo data.');
+                
+                // Show mock data as fallback
+                const mockApplications = [
+                    {
+                        id: 1,
+                        positionName: "Software Developer Intern",
+                        description: "Develop and maintain web applications using modern frameworks. Work with a team of experienced developers.",
+                        status: "pending",
+                        company: "Tech Corp",
+                        appliedDate: "2024-03-15"
+                    },
+                    {
+                        id: 2,
+                        positionName: "Data Analyst",
+                        description: "Analyze business data and create reports. Work with SQL, Python, and data visualization tools.",
+                        status: "accepted",
+                        company: "Data Inc",
+                        appliedDate: "2024-03-10"
+                    },
+                    {
+                        id: 3,
+                        positionName: "UX Designer",
+                        description: "Design user interfaces and experiences for web and mobile applications. Create wireframes and prototypes.",
+                        status: "rejected",
+                        company: "Design Studio",
+                        appliedDate: "2024-03-05"
+                    },
+                    {
+                        id: 4,
+                        positionName: "Marketing Intern",
+                        description: "Assist in creating marketing campaigns, social media management, and content creation.",
+                        status: "pending",
+                        company: "Marketing Pro",
+                        appliedDate: "2024-03-20"
+                    }
+                ];
+                
+                renderApplications(mockApplications);
+            } finally {
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        // Function to render applications
+        function renderApplications(applications) {
+            const positionsContainer = document.getElementById('positions-container');
+            if (!positionsContainer) return;
+            
+            positionsContainer.innerHTML = '';
+            
+            if (applications.length === 0) {
+                positionsContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>You haven't applied to any positions yet.</p>
+                        <p>Check back later or apply for new opportunities!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            applications.forEach(app => {
+                const widget = document.createElement('div');
+                widget.className = 'widget';
+                widget.setAttribute('data-position', app.positionName.toLowerCase());
+                widget.setAttribute('data-company', app.company ? app.company.toLowerCase() : '');
+                widget.setAttribute('data-app-id', app.id);
+                
+                let statusText = '';
+                let statusClass = '';
+                
+                switch(app.status) {
+                    case 'pending':
+                        statusText = 'Under Review';
+                        statusClass = 'status-pending';
+                        break;
+                    case 'accepted':
+                        statusText = 'Interview Scheduled';
+                        statusClass = 'status-accepted';
+                        break;
+                    case 'rejected':
+                        statusText = 'Application Rejected';
+                        statusClass = 'status-rejected';
+                        break;
+                    default:
+                        statusText = app.status;
+                        statusClass = 'status-pending';
+                }
+                
+                widget.innerHTML = `
+                    <div class="position-name">${app.positionName}</div>
+                    ${app.company ? `<div class="position-company" style="color: #7f8c8d; font-size: 14px; margin-bottom: 5px;">${app.company}</div>` : ''}
+                    <div class="position-description">${app.description}</div>
+                    ${app.appliedDate ? `<div style="color: #7f8c8d; font-size: 12px; margin-bottom: 10px;">Applied: ${app.appliedDate}</div>` : ''}
+                    ${app.lastUpdated ? `<div style="color: #7f8c8d; font-size: 12px; margin-bottom: 10px;">Last Updated: ${app.lastUpdated}</div>` : ''}
+                    <div class="position-status">Status: <span class="status-badge ${statusClass}">${statusText}</span></div>
+                    <button class="view-response-btn" data-app-id="${app.id}" data-status="${app.status}">View Response</button>
+                `;
+                
+                positionsContainer.appendChild(widget);
+            });
+            
+            // Add event listeners to the new buttons
+            document.querySelectorAll('.view-response-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    const positionName = this.getAttribute('data-position');
+                    const appId = this.getAttribute('data-app-id');
                     const status = this.getAttribute('data-status');
-                    
-                    // Set modal content based on position and status
-                    document.getElementById('modal-position-name').textContent = positionName;
-                    
-                    // Set status with appropriate styling
-                    const statusElement = document.getElementById('modal-status');
-                    statusElement.textContent = '';
-                    statusElement.className = '';
-                    
+                    loadApplicationResponse(appId, status);
+                });
+            });
+        }
+        
+        // Function to filter applications
+        function filterApplications() {
+            const searchTerm = this.value.toLowerCase().trim();
+            const widgets = document.querySelectorAll('.widget');
+            const noResultsMessage = document.getElementById('no-results');
+            let hasResults = false;
+            
+            widgets.forEach(widget => {
+                const positionName = widget.getAttribute('data-position');
+                const company = widget.getAttribute('data-company') || '';
+                
+                if (positionName.includes(searchTerm) || company.includes(searchTerm) || searchTerm === '') {
+                    widget.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    widget.style.display = 'none';
+                }
+            });
+            
+            if (noResultsMessage) {
+                if (hasResults || searchTerm === '') {
+                    noResultsMessage.style.display = 'none';
+                } else {
+                    noResultsMessage.style.display = 'block';
+                }
+            }
+        }
+        
+        // Function to load application response
+        async function loadApplicationResponse(appId, status) {
+            const modal = document.getElementById('response-modal');
+            const modalLoading = document.getElementById('modal-loading');
+            const modalResponseDetails = document.getElementById('modal-response-details');
+            
+            try {
+                if (modalLoading) modalLoading.style.display = 'block';
+                if (modalResponseDetails) modalResponseDetails.style.display = 'none';
+                
+                if (modal) modal.style.display = 'flex';
+                
+                const response = await fetch(`${API_BASE_URL}/applications/${appId}/response`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                let responseData;
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.application) {
+                        responseData = data.application;
+                    } else {
+                        responseData = getMockResponseData(appId, status);
+                    }
+                } else {
+                    responseData = getMockResponseData(appId, status);
+                }
+                
+                const modalPositionName = document.getElementById('modal-position-name');
+                const modalCompany = document.getElementById('modal-company');
+                const modalStatus = document.getElementById('modal-status');
+                const detailsElement = document.getElementById('modal-details');
+                
+                if (modalPositionName) {
+                    modalPositionName.textContent = responseData.positionName || `Application #${appId}`;
+                }
+                
+                if (modalCompany) {
+                    modalCompany.textContent = responseData.company || 'Not specified';
+                }
+                
+                if (modalStatus) {
+                    modalStatus.textContent = '';
                     const statusBadge = document.createElement('span');
                     statusBadge.className = 'status-badge';
                     
-                    if (status === 'pending') {
+                    const appStatus = responseData.status || status;
+                    if (appStatus === 'pending') {
                         statusBadge.textContent = 'Pending Review';
                         statusBadge.classList.add('status-pending');
-                    } else if (status === 'accepted') {
+                    } else if (appStatus === 'accepted') {
                         statusBadge.textContent = 'Accepted';
                         statusBadge.classList.add('status-accepted');
-                    } else if (status === 'rejected') {
+                    } else if (appStatus === 'rejected') {
                         statusBadge.textContent = 'Rejected';
                         statusBadge.classList.add('status-rejected');
+                    } else {
+                        statusBadge.textContent = appStatus;
+                        statusBadge.classList.add('status-pending');
                     }
                     
-                    statusElement.appendChild(statusBadge);
-                    
-                    // Set additional details based on status
-                    const detailsElement = document.getElementById('modal-details');
+                    modalStatus.appendChild(statusBadge);
+                }
+                
+                if (detailsElement) {
                     detailsElement.innerHTML = '';
                     
-                    if (status === 'pending') {
-                        detailsElement.innerHTML = `
-                            <p>Your application is currently under review by our hiring team.</p>
-                            <p>We will notify you as soon as we have an update. This process typically takes 1-2 weeks.</p>
-                            <p><strong>Next Steps:</strong></p>
-                            <ul>
-                                <li>Application screening</li>
-                                <li>Technical assessment (if applicable)</li>
-                                <li>Interview process</li>
-                                <li>Final decision</li>
-                            </ul>
-                        `;
-                    } else if (status === 'accepted') {
-                        detailsElement.innerHTML = `
-                            <p>Congratulations! Your application has been accepted.</p>
-                            <p>An interview has been scheduled for you:</p>
-                            <ul>
-                                <li><strong>Date:</strong> October 15, 2023</li>
-                                <li><strong>Time:</strong> 2:00 PM EST</li>
-                                <li><strong>Location:</strong> Virtual (Zoom)</li>
-                                <li><strong>Interviewer:</strong> Sarah Johnson, Hiring Manager</li>
-                            </ul>
-                            <p>You will receive a calendar invitation shortly with the meeting link.</p>
-                            <p><strong>Preparation Tips:</strong></p>
-                            <ul>
-                                <li>Review the job description and your application</li>
-                                <li>Prepare examples of your relevant experience</li>
-                                <li>Be ready to discuss your technical skills</li>
-                                <li>Have questions ready for the interviewer</li>
-                            </ul>
-                        `;
-                    } else if (status === 'rejected') {
-                        detailsElement.innerHTML = `
-                            <p>Thank you for your interest in this position.</p>
-                            <p>After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our current needs.</p>
-                            <p>We appreciate the time and effort you put into your application and encourage you to apply for other positions that may be a better fit for your skills and experience.</p>
-                            <p><strong>Feedback:</strong></p>
-                            <ul>
-                                <li>Strong technical background</li>
-                                <li>Consider gaining more experience with [specific technology]</li>
-                                <li>Your portfolio demonstrates good design thinking</li>
-                            </ul>
-                        `;
+                    if (responseData.details) {
+                        if (responseData.details.submittedDate) {
+                            detailsElement.innerHTML += `<p><strong>Submitted Date:</strong> ${responseData.details.submittedDate}</p>`;
+                        }
+                        
+                        if (responseData.details.lastUpdated) {
+                            detailsElement.innerHTML += `<p><strong>Last Updated:</strong> ${responseData.details.lastUpdated}</p>`;
+                        }
+                        
+                        if (responseData.details.feedback) {
+                            detailsElement.innerHTML += `<p><strong>Feedback:</strong> ${responseData.details.feedback}</p>`;
+                        }
+                        
+                        if (responseData.details.interviewDate) {
+                            detailsElement.innerHTML += `
+                                <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                                    <p><strong>Interview Details:</strong></p>
+                                    <ul style="margin-left: 20px;">
+                                        <li><strong>Date:</strong> ${responseData.details.interviewDate}</li>
+                                        ${responseData.details.interviewer ? `<li><strong>Interviewer:</strong> ${responseData.details.interviewer}</li>` : ''}
+                                        ${responseData.details.interviewTime ? `<li><strong>Time:</strong> ${responseData.details.interviewTime}</li>` : ''}
+                                        ${responseData.details.location ? `<li><strong>Location:</strong> ${responseData.details.location}</li>` : ''}
+                                    </ul>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        detailsElement.innerHTML = getStatusMessage(status, responseData.positionName || `Application #${appId}`);
                     }
-                    
-                    // Open the modal
-                    modal.style.display = 'flex';
-                });
-            });
-            
-            // Close modal functionality
-            closeModalBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-            
-            modalCloseBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
                 }
-            });
-        });
+                
+                if (modalLoading) modalLoading.style.display = 'none';
+                if (modalResponseDetails) modalResponseDetails.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading application response:', error);
+                
+                if (detailsElement) {
+                    detailsElement.innerHTML = `
+                        <div style="color: #e74c3c; padding: 10px; background-color: #fee; border-radius: 4px;">
+                            <p>There was an error loading the application response.</p>
+                            <p>Please try again later or contact support if the problem persists.</p>
+                        </div>
+                    `;
+                }
+                
+                if (modalLoading) modalLoading.style.display = 'none';
+                if (modalResponseDetails) modalResponseDetails.style.display = 'block';
+            }
+        }
+        
+        // Helper function for mock response data
+        function getMockResponseData(appId, status) {
+            const positions = {
+                1: { name: "Software Developer Intern", company: "Tech Corp" },
+                2: { name: "Data Analyst", company: "Data Inc" },
+                3: { name: "UX Designer", company: "Design Studio" },
+                4: { name: "Marketing Intern", company: "Marketing Pro" }
+            };
+            
+            const positionInfo = positions[appId] || { name: `Application #${appId}`, company: 'Unknown Company' };
+            
+            if (status === 'accepted') {
+                return {
+                    positionName: positionInfo.name,
+                    company: positionInfo.company,
+                    status: "accepted",
+                    details: {
+                        submittedDate: "2024-03-10",
+                        lastUpdated: "2024-03-25",
+                        feedback: "Congratulations! Your application has been accepted.",
+                        interviewDate: "2024-10-15",
+                        interviewer: "Sarah Johnson",
+                        interviewTime: "2:00 PM EST",
+                        location: "Virtual (Zoom)"
+                    }
+                };
+            } else if (status === 'rejected') {
+                return {
+                    positionName: positionInfo.name,
+                    company: positionInfo.company,
+                    status: "rejected",
+                    details: {
+                        submittedDate: "2024-03-05",
+                        lastUpdated: "2024-03-20",
+                        feedback: "Thank you for your application. Unfortunately, we have decided to move forward with other candidates."
+                    }
+                };
+            } else {
+                return {
+                    positionName: positionInfo.name,
+                    company: positionInfo.company,
+                    status: "pending",
+                    details: {
+                        submittedDate: "2024-03-15",
+                        lastUpdated: "2024-03-20",
+                        feedback: "Your application is currently under review by our hiring team.",
+                        screening_stage: "Initial Screening"
+                    }
+                };
+            }
+        }
+        
+        // Helper function for status messages
+        function getStatusMessage(status, positionName) {
+            if (status === 'pending') {
+                return `
+                    <p>Your application for the <strong>${positionName}</strong> position is currently under review by our hiring team.</p>
+                    <p>We will notify you as soon as we have an update. This process typically takes 1-2 weeks.</p>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                        <p><strong>Application Timeline:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li><span style="color: #27ae60; margin-right: 8px;">✓</span> Application submitted</li>
+                            <li><span style="color: #f39c12; margin-right: 8px;">●</span> Application screening (In Progress)</li>
+                            <li><span style="color: #7f8c8d; margin-right: 8px;">○</span> Technical assessment (If applicable)</li>
+                            <li><span style="color: #7f8c8d; margin-right: 8px;">○</span> Interview process</li>
+                            <li><span style="color: #7f8c8d; margin-right: 8px;">○</span> Final decision</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (status === 'accepted') {
+                return `
+                    <div style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                        <p style="color: #27ae60; font-weight: bold;">🎉 Congratulations!</p>
+                        <p>Your application for the <strong>${positionName}</strong> position has been accepted.</p>
+                    </div>
+                    
+                    <p>An interview has been scheduled for you:</p>
+                    <div style="margin: 15px 0; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Date:</strong> October 15, 2024</li>
+                            <li><strong>Time:</strong> 2:00 PM EST</li>
+                            <li><strong>Location:</strong> Virtual (Zoom)</li>
+                            <li><strong>Interviewer:</strong> Sarah Johnson, Hiring Manager</li>
+                        </ul>
+                    </div>
+                    
+                    <p>You will receive a calendar invitation shortly with the meeting link.</p>
+                `;
+            } else if (status === 'rejected') {
+                return `
+                    <p>Thank you for your interest in the <strong>${positionName}</strong> position.</p>
+                    
+                    <div style="background-color: #ffebee; padding: 15px; border-radius: 4px; margin: 15px 0;">
+                        <p>After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our current needs.</p>
+                    </div>
+                    
+                    <p>We appreciate the time and effort you put into your application and encourage you to apply for other positions that may be a better fit for your skills and experience.</p>
+                `;
+            } else {
+                return `<p>Status: ${status}</p>`;
+            }
+        }
     </script>
 </body>
 </html>
