@@ -1,4 +1,4 @@
-from flask import request, jsonify, redirect
+from flask import request, jsonify, redirect, session
 from App.controllers.user import create_user
 from App.models import User
 from App.database import db
@@ -18,6 +18,14 @@ def simple_login():
         if user:
             print(f"User role: {user.role}, checking password...")
             if user.check_password(password) and user.role == user_type:
+                # store user info in the session so frontend can fetch it
+                try:
+                    session['user_id'] = user.id
+                    session['username'] = user.username
+                    session['user_type'] = user.role
+                except Exception:
+                    # if session can't be set for some reason, continue without failing
+                    pass
                 # Redirect based on user type
                 if user_type == 'student':
                     return redirect('/student-dashboard')

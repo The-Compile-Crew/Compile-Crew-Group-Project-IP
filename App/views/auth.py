@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, flash, send_from_directory, flash, redirect, url_for
-from flask_jwt_extended import jwt_required, current_user, unset_jwt_cookies, set_access_cookies
+from flask import Blueprint, render_template, request, flash, send_from_directory, flash, redirect, url_for, session
 
 
 from.index import index_views
@@ -9,6 +8,10 @@ from App.controllers import (
     create_user,
 )
 from App.controllers.controllers.simple_auth import simple_login, simple_signup
+from App.controllers import (
+    get_shortlist_by_student,
+    get_positions_by_employer
+)
 
 auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
@@ -29,89 +32,58 @@ def simple_signup_route():
 
 @auth_views.route('/student-dashboard')
 def student_dashboard():
-    return render_template('StudentDashboard.html')
+    username = session.get('username')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect('/')
+    applications = []
+    try:
+        applications = get_shortlist_by_student(user_id) or []
+    except Exception:
+        applications = []
+    return render_template('StudentDashboard.html', username=username, applications=applications)
 
 @auth_views.route('/employerdashboard')
 def employer_dashboard():
-    return render_template('Employer dashboard.html')
+    username = session.get('username')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect('/')
+    positions = []
+    try:
+        positions = get_positions_by_employer(user_id) or []
+    except Exception:
+        positions = []
+    return render_template('EmployerDashboard.html', username=username, positions=positions)
 
 @auth_views.route('/StaffDashboard')
 def staff_dashboard():
-    return render_template('StaffDashboard.html')
+    username = session.get('username')
+    return render_template('StaffDashboard.html', username=username)
 
-@auth_views.route('/identify', methods=['GET'])
-@jwt_required()
-def identify_page():
-    return render_template('message.html', title="Identify", message=f"You are logged in as {current_user.id} - {current_user.username}")
-    
 
 @auth_views.route('/login', methods=['POST'])
 def login_action():
-    data = request.form
-    token = login(data['username'], data['password'])
-    response = redirect(request.referrer)
-    if not token:
-        flash('Bad username or password given'), 401
-    else:
-        flash('Login Successful')
-        set_access_cookies(response, token) 
-    return response
+    # Legacy JWT login removed for UI-only mode. Redirect back.
+    flash('Use the login form on the home page.' )
+    return redirect(request.referrer or '/')
 
 @auth_views.route('/signup', methods=['POST'])
 def signup_action():
-    data = request.form
-    status = create_user(data['username'], data['password'], data['type'])
-    response = redirect(request.referrer)
-    if not status:
-        flash('Signup failed, username taken!'), 401
-    else:
-        token = login(data['username'], data['password'])
-        flash('Signup Successful')
-        set_access_cookies(response, token)
-    return response
+    # Legacy JWT signup removed for UI-only mode. Use the simple signup form.
+    flash('Use the signup form on the home page.')
+    return redirect(request.referrer or '/')
 
 
 @auth_views.route('/logout', methods=['GET'])
 def logout_action():
-    response = redirect(request.referrer) 
-    flash("Logged Out!")
-    unset_jwt_cookies(response)
-    return response
+    # Clear server-side session and redirect to login page
+    session.clear()
+    flash('Logged out')
+    return redirect('/')
 
 '''
 API Routes
 '''
 
-@auth_views.route('/api/login', methods=['POST'])
-def user_login_api():
-  data = request.json
-  token = login(data['username'], data['password'])
-  if not token:
-    return jsonify(message='bad username or password given'), 401
-  response = jsonify(access_token=token)
-  set_access_cookies(response, token)
-  return response
-
-@auth_views.route('/api/signup', methods=['POST'])
-def signup_api():
-    data = request.json
-    status = create_user(data['username'], data['password'], data['type'])
-    if not status:
-        return jsonify(message='Signup failed, username taken!'), 401
-    else:
-        token = login(data['username'], data['password'])
-        flash('Signup Successful')
-        response = jsonify(access_token=token)
-        set_access_cookies(response, token) 
-        return response
-
-@auth_views.route('/api/identify', methods=['GET'])
-@jwt_required()
-def identify_user():
-    return jsonify({'message': f"username: {current_user.username}, id : {current_user.id}"})
-
-@auth_views.route('/api/logout', methods=['GET'])
-def logout_api():
-    response = jsonify(message="Logged Out!")
-    unset_jwt_cookies(response)
-    return response
+# JSON API routes removed for UI-only project requirements.
