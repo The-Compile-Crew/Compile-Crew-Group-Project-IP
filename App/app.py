@@ -176,18 +176,6 @@ def main():
                 'filled': 1,
                 'created_date': "2024-02-10",
                 'status': "active"
-            },
-            {
-                'id': 4,
-                'employer_id': 4,  # employer2
-                'name': "Data Analyst",
-                'description': "Analyze complex data sets to provide insights and support data-driven decision making.",
-                'capacity': 2,
-                'department': "engineering",
-                'endDate': "2024-09-30",
-                'filled': 0,
-                'created_date': "2024-02-25",
-                'status': "active"
             }
         ]
         
@@ -195,7 +183,7 @@ def main():
         employer_applicants = [
             {
                 'id': 1,
-                'position_id': 1,  # Software Developer Intern
+                'position_id': 1,
                 'position_name': "Software Developer Intern",
                 'name': "John Smith",
                 'email': "john.smith@email.com",
@@ -205,8 +193,7 @@ def main():
                 'experience': "3 years",
                 'education': "Bachelor's in Computer Science",
                 'skills': ["React", "JavaScript", "CSS", "HTML", "Git"],
-                'notes': "Strong portfolio with modern React projects. Excellent communication skills and team player.",
-                'resume_url': "/resumes/john_smith.pdf"
+                'notes': "Strong portfolio with modern React projects. Excellent communication skills and team player."
             },
             {
                 'id': 2,
@@ -220,12 +207,11 @@ def main():
                 'experience': "4 years",
                 'education': "Master's in Design",
                 'skills': ["Figma", "UI Design", "User Research", "Prototyping", "Wireframing"],
-                'notes': "Excellent design portfolio with detailed case studies.",
-                'resume_url': "/resumes/sarah_johnson.pdf"
+                'notes': "Excellent design portfolio with detailed case studies."
             },
             {
                 'id': 3,
-                'position_id': 2,  # UI/UX Designer
+                'position_id': 2,
                 'position_name': "UI/UX Designer",
                 'name': "Michael Chen",
                 'email': "m.chen@email.com",
@@ -235,42 +221,11 @@ def main():
                 'experience': "5 years",
                 'education': "Bachelor's in Software Engineering",
                 'skills': ["Node.js", "Python", "AWS", "MongoDB", "Docker"],
-                'notes': "Strong backend architecture experience.",
-                'resume_url': "/resumes/michael_chen.pdf"
-            },
-            {
-                'id': 4,
-                'position_id': 2,
-                'position_name': "UI/UX Designer",
-                'name': "Emily Davis",
-                'email': "emily.davis@email.com",
-                'phone': "+1 (555) 234-5678",
-                'applied_date': "2024-01-17",
-                'status': "rejected",
-                'experience': "6 years",
-                'education': "MBA",
-                'skills': ["Product Strategy", "Agile", "Analytics", "Roadmapping"],
-                'notes': "Good overall experience but lacks specific industry knowledge.",
-                'resume_url': "/resumes/emily_davis.pdf"
-            },
-            {
-                'id': 5,
-                'position_id': 3,  # Backend Developer
-                'position_name': "Backend Developer",
-                'name': "Robert Wilson",
-                'email': "robert.wilson@email.com",
-                'phone': "+1 (555) 345-6789",
-                'applied_date': "2024-01-18",
-                'status': "applied",
-                'experience': "2 years",
-                'education': "Bachelor's in Statistics",
-                'skills': ["SQL", "Python", "Tableau", "Excel", "R"],
-                'notes': "Strong analytical skills with good attention to detail.",
-                'resume_url': "/resumes/robert_wilson.pdf"
+                'notes': "Strong backend architecture experience."
             }
         ]
         
-        # Store mock data in app config
+        # Store mock data
         app.config['MOCK_USERS'] = users
         app.config['MOCK_APPLICATIONS'] = applications
         app.config['MOCK_EMPLOYER_POSITIONS'] = employer_positions
@@ -283,18 +238,12 @@ def main():
         if os.path.exists(templates_dir):
             files = os.listdir(templates_dir)
             print(f"✓ Templates directory exists with {len(files)} files")
-            for file in files:
-                print(f"  • {file}")
         else:
             print(f"✗ Templates directory NOT found: {templates_dir}")
             os.makedirs(templates_dir, exist_ok=True)
             print(f"✓ Created templates directory")
         
-        # Routes
-        print("\n" + "=" * 50)
-        print("Setting up routes...")
-        
-        # ========== PAGES ==========
+        # ========== ROUTES ==========
         
         @app.route('/')
         def index():
@@ -302,127 +251,82 @@ def main():
         
         @app.route('/login')
         def login_page():
-            print(f"  → Serving /login")
             return render_template('login.html')
         
         @app.route('/dashboard')
         def dashboard_page():
-            # Check if user is logged in
             if 'user_id' not in session:
-                print(f"  → User not logged in, redirecting to login")
                 return redirect('/login')
             
-            user_id = session.get('user_id')
             user_type = session.get('user_type')
-            
-            print(f"  → Serving /dashboard for user {user_id} (type: {user_type})")
             
             if user_type == 'student':
                 return render_template('StudentDashboard.html')
             elif user_type == 'employer':
-                return render_template('Employer dashboard.html')
+                return render_template('EmployerDashboard.html')
             else:
                 return redirect('/login')
         
         @app.route('/review')
         def review_page():
-            # Check if user is logged in as employer
             if 'user_id' not in session or session.get('user_type') != 'employer':
                 return redirect('/login')
-            
-            print(f"  → Serving /review for employer {session.get('user_id')}")
-            # For now, return a simple page - you can create a review.html template later
             return """
             <!DOCTYPE html>
             <html>
-            <head>
-                <title>Review Applicant</title>
-                <style>
-                    body { font-family: Arial, sans-serif; padding: 20px; }
-                    .container { max-width: 800px; margin: 0 auto; }
-                    .back-btn { 
-                        background-color: #3498db; 
-                        color: white; 
-                        border: none; 
-                        padding: 10px 20px; 
-                        border-radius: 4px; 
-                        cursor: pointer; 
-                        margin-bottom: 20px;
-                    }
-                    .applicant-info { 
-                        background-color: #f8f9fa; 
-                        padding: 20px; 
-                        border-radius: 8px; 
-                        margin-bottom: 20px; 
-                    }
-                </style>
-            </head>
+            <head><title>Review Applicant</title><style>
+                body { font-family: Arial; padding: 20px; }
+                .container { max-width: 800px; margin: 0 auto; }
+                .back-btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; margin-bottom: 20px; }
+                .applicant-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+            </style></head>
             <body>
                 <div class="container">
-                    <button class="back-btn" onclick="window.history.back()">← Back to Dashboard</button>
-                    <h1>Applicant Review Page</h1>
+                    <button class="back-btn" onclick="window.history.back()">← Back</button>
+                    <h1>Review Applicant</h1>
                     <div class="applicant-info">
                         <h2>Applicant Details</h2>
                         <p><strong>Name:</strong> <span id="applicant-name">Loading...</span></p>
                         <p><strong>Position:</strong> <span id="applicant-position">Loading...</span></p>
                         <p><strong>Status:</strong> <span id="applicant-status">Loading...</span></p>
-                        <p><strong>Applied Date:</strong> <span id="applicant-date">Loading...</span></p>
+                        <p><strong>Applied:</strong> <span id="applicant-date">Loading...</span></p>
                         <p><strong>Experience:</strong> <span id="applicant-experience">Loading...</span></p>
-                        <p><strong>Education:</strong> <span id="applicant-education">Loading...</span></p>
                         <p><strong>Skills:</strong> <span id="applicant-skills">Loading...</span></p>
-                        <p><strong>Notes:</strong> <span id="applicant-notes">Loading...</span></p>
                     </div>
                     <div>
-                        <button onclick="updateStatus('shortlisted')" style="background-color: #f39c12; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">Shortlist</button>
-                        <button onclick="updateStatus('accepted')" style="background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">Accept</button>
-                        <button onclick="updateStatus('rejected')" style="background-color: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 4px;">Reject</button>
+                        <button onclick="updateStatus('shortlisted')" style="background: #f39c12; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">Shortlist</button>
+                        <button onclick="updateStatus('accepted')" style="background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">Accept</button>
+                        <button onclick="updateStatus('rejected')" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 4px;">Reject</button>
                     </div>
                 </div>
                 <script>
-                    // Get applicant ID from sessionStorage (set by EmployerDashboard)
                     const applicantId = sessionStorage.getItem('currentApplicantId') || 1;
-                    
-                    // Fetch applicant details
                     fetch(`/api/employer/applicants/${applicantId}`)
-                        .then(response => response.json())
+                        .then(r => r.json())
                         .then(data => {
-                            if (data.success && data.applicant) {
+                            if (data.success) {
                                 const app = data.applicant;
                                 document.getElementById('applicant-name').textContent = app.name;
                                 document.getElementById('applicant-position').textContent = app.position_name;
                                 document.getElementById('applicant-status').textContent = app.status;
                                 document.getElementById('applicant-date').textContent = app.applied_date;
                                 document.getElementById('applicant-experience').textContent = app.experience;
-                                document.getElementById('applicant-education').textContent = app.education;
                                 document.getElementById('applicant-skills').textContent = app.skills ? app.skills.join(', ') : 'N/A';
-                                document.getElementById('applicant-notes').textContent = app.notes || 'No notes';
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error loading applicant:', error);
-                            document.getElementById('applicant-name').textContent = 'Error loading data';
                         });
                     
                     function updateStatus(newStatus) {
                         fetch(`/api/employer/applicants/${applicantId}/status`, {
                             method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
+                            headers: {'Content-Type': 'application/json'},
                             body: JSON.stringify({ status: newStatus })
                         })
-                        .then(response => response.json())
+                        .then(r => r.json())
                         .then(data => {
                             if (data.success) {
-                                alert(`Applicant status updated to ${newStatus}`);
+                                alert(`Status updated to ${newStatus}`);
                                 document.getElementById('applicant-status').textContent = newStatus;
-                            } else {
-                                alert('Failed to update status');
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error updating status:', error);
-                            alert('Error updating status');
                         });
                     }
                 </script>
@@ -432,52 +336,35 @@ def main():
         
         # ========== AUTHENTICATION ==========
         
-        @app.route('/simple_login', methods=['POST', 'GET'])
+        @app.route('/simple_login', methods=['POST'])
         def simple_login():
             try:
-                if request.method == 'GET':
-                    return "GET method not allowed for login. Use POST.", 405
-                
-                print("=== DEBUG: Form Data Received ===")
-                print(f"Form data: {request.form}")
-                print(f"Username: {request.form.get('username')}")
-                print(f"Password: {request.form.get('password')}")
-                print(f"User Type: {request.form.get('userType')}")
-                
-                # Get form data
                 username = request.form.get('username')
                 password = request.form.get('password')
                 user_type = request.form.get('userType')
                 
                 if not username or not password:
-                    return "Username and password are required", 400
+                    return "Username and password required", 400
                 
-                # Find user in mock data
                 if username not in users or users[username]['password'] != password:
-                    return f"Invalid username or password. Try: johndoe / password123", 401
+                    return "Invalid credentials", 401
                 
                 user = users[username]
                 
-                # Check user type if specified
                 if user_type and user['type'] != user_type:
-                    return f"Access denied. User '{username}' is type '{user['type']}', not '{user_type}'", 403
+                    return f"User is type {user['type']}, not {user_type}", 403
                 
-                # Store user in session
                 session['user_id'] = user['id']
                 session['username'] = user['username']
                 session['user_type'] = user['type']
                 session.permanent = True
                 
-                print(f"=== DEBUG: Login successful for user {user['id']}, redirecting to dashboard ===")
                 return redirect('/dashboard')
                 
             except Exception as e:
-                print(f"=== DEBUG: Error in simple_login: {e}")
-                import traceback
-                traceback.print_exc()
-                return f"Internal server error: {str(e)}", 500
+                return f"Error: {str(e)}", 500
         
-        # ========== STUDENT API ENDPOINTS ==========
+        # ========== STUDENT API ==========
         
         @app.route('/api/user', methods=['GET'])
         def get_user_info():
@@ -485,7 +372,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Find the current user
             current_user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id:
@@ -512,12 +398,9 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            user_applications = [
-                app for app in applications if app['user_id'] == user_id
-            ]
-            
+            user_apps = [app for app in applications if app['user_id'] == user_id]
             simplified = []
-            for app in user_applications:
+            for app in user_apps:
                 simplified.append({
                     'id': app['id'],
                     'positionName': app['position_name'],
@@ -559,7 +442,7 @@ def main():
                 }
             })
         
-        # ========== EMPLOYER API ENDPOINTS ==========
+        # ========== EMPLOYER API ==========
         
         @app.route('/api/employer/user', methods=['GET'])
         def get_employer_user_info():
@@ -567,7 +450,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Find the current user
             current_user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -575,7 +457,7 @@ def main():
                     break
             
             if not current_user:
-                return jsonify({'error': 'User not found or not an employer'}), 404
+                return jsonify({'error': 'User not found or not employer'}), 404
             
             return jsonify({
                 'success': True,
@@ -594,7 +476,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -602,16 +483,10 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
-            user_positions = [
-                pos for pos in employer_positions if pos['employer_id'] == user_id
-            ]
-            
-            return jsonify({
-                'success': True,
-                'positions': user_positions
-            })
+            user_positions = [pos for pos in employer_positions if pos['employer_id'] == user_id]
+            return jsonify({'success': True, 'positions': user_positions})
         
         @app.route('/api/employer/positions', methods=['POST'])
         def create_employer_position():
@@ -619,7 +494,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -627,17 +501,13 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
             data = request.get_json()
-            
-            # Validate required fields
             if not data.get('name') or not data.get('description'):
-                return jsonify({'error': 'Name and description are required'}), 400
+                return jsonify({'error': 'Name and description required'}), 400
             
-            # Generate new ID
             new_id = max([p['id'] for p in employer_positions], default=0) + 1
-            
             new_position = {
                 'id': new_id,
                 'employer_id': user_id,
@@ -652,11 +522,7 @@ def main():
             }
             
             employer_positions.append(new_position)
-            
-            return jsonify({
-                'success': True,
-                'position': new_position
-            })
+            return jsonify({'success': True, 'position': new_position})
         
         @app.route('/api/employer/positions/<int:position_id>', methods=['PUT'])
         def update_employer_position(position_id):
@@ -664,7 +530,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -672,12 +537,11 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
             data = request.get_json()
-            
-            # Find position
             position_index = None
+            
             for i, pos in enumerate(employer_positions):
                 if pos['id'] == position_id and pos['employer_id'] == user_id:
                     position_index = i
@@ -686,7 +550,6 @@ def main():
             if position_index is None:
                 return jsonify({'error': 'Position not found'}), 404
             
-            # Update position
             employer_positions[position_index].update({
                 'name': data.get('name', employer_positions[position_index]['name']),
                 'description': data.get('description', employer_positions[position_index]['description']),
@@ -695,10 +558,7 @@ def main():
                 'endDate': data.get('endDate', employer_positions[position_index]['endDate'])
             })
             
-            return jsonify({
-                'success': True,
-                'position': employer_positions[position_index]
-            })
+            return jsonify({'success': True, 'position': employer_positions[position_index]})
         
         @app.route('/api/employer/positions/<int:position_id>', methods=['DELETE'])
         def delete_employer_position(position_id):
@@ -706,7 +566,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -714,9 +573,8 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
-            # Find position
             position_index = None
             for i, pos in enumerate(employer_positions):
                 if pos['id'] == position_id and pos['employer_id'] == user_id:
@@ -726,14 +584,8 @@ def main():
             if position_index is None:
                 return jsonify({'error': 'Position not found'}), 404
             
-            # Remove position
-            deleted_position = employer_positions.pop(position_index)
-            
-            return jsonify({
-                'success': True,
-                'message': 'Position deleted successfully',
-                'position': deleted_position
-            })
+            deleted = employer_positions.pop(position_index)
+            return jsonify({'success': True, 'message': 'Position deleted', 'position': deleted})
         
         @app.route('/api/employer/applicants', methods=['GET'])
         def get_employer_applicants():
@@ -741,7 +593,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -749,20 +600,11 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
-            # Get positions for this employer
-            employer_position_ids = [pos['id'] for pos in employer_positions if pos['employer_id'] == user_id]
-            
-            # Get applicants for these positions
-            user_applicants = [
-                app for app in employer_applicants if app['position_id'] in employer_position_ids
-            ]
-            
-            return jsonify({
-                'success': True,
-                'applicants': user_applicants
-            })
+            position_ids = [pos['id'] for pos in employer_positions if pos['employer_id'] == user_id]
+            user_apps = [app for app in employer_applicants if app['position_id'] in position_ids]
+            return jsonify({'success': True, 'applicants': user_apps})
         
         @app.route('/api/employer/applicants/<int:applicant_id>', methods=['GET'])
         def get_employer_applicant(applicant_id):
@@ -770,7 +612,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -778,13 +619,11 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
-            # Find applicant
             applicant = None
             for app in employer_applicants:
                 if app['id'] == applicant_id:
-                    # Check if this applicant belongs to one of the employer's positions
                     position = next((p for p in employer_positions if p['id'] == app['position_id'] and p['employer_id'] == user_id), None)
                     if position:
                         applicant = app
@@ -793,10 +632,7 @@ def main():
             if not applicant:
                 return jsonify({'error': 'Applicant not found'}), 404
             
-            return jsonify({
-                'success': True,
-                'applicant': applicant
-            })
+            return jsonify({'success': True, 'applicant': applicant})
         
         @app.route('/api/employer/applicants/<int:applicant_id>/status', methods=['PUT'])
         def update_applicant_status(applicant_id):
@@ -804,7 +640,6 @@ def main():
             if not user_id:
                 return jsonify({'error': 'Not authenticated'}), 401
             
-            # Verify user is an employer
             user = None
             for username, user_data in users.items():
                 if user_data['id'] == user_id and user_data['type'] == 'employer':
@@ -812,19 +647,16 @@ def main():
                     break
             
             if not user:
-                return jsonify({'error': 'User is not an employer'}), 403
+                return jsonify({'error': 'User is not employer'}), 403
             
             data = request.get_json()
             new_status = data.get('status')
-            
             if not new_status:
-                return jsonify({'error': 'Status is required'}), 400
+                return jsonify({'error': 'Status required'}), 400
             
-            # Find applicant
             applicant_index = None
             for i, app in enumerate(employer_applicants):
                 if app['id'] == applicant_id:
-                    # Check if this applicant belongs to one of the employer's positions
                     position = next((p for p in employer_positions if p['id'] == app['position_id'] and p['employer_id'] == user_id), None)
                     if position:
                         applicant_index = i
@@ -833,15 +665,10 @@ def main():
             if applicant_index is None:
                 return jsonify({'error': 'Applicant not found'}), 404
             
-            # Update status
             employer_applicants[applicant_index]['status'] = new_status
-            
-            return jsonify({
-                'success': True,
-                'applicant': employer_applicants[applicant_index]
-            })
+            return jsonify({'success': True, 'applicant': employer_applicants[applicant_index]})
         
-        # ========== OTHER ENDPOINTS ==========
+        # ========== UTILITY ROUTES ==========
         
         @app.route('/api/auth/login', methods=['POST'])
         def api_login():
@@ -854,8 +681,6 @@ def main():
                     return jsonify({'error': 'Invalid credentials'}), 401
                 
                 user = users[username]
-                
-                # Also set session for consistency
                 session['user_id'] = user['id']
                 session['username'] = user['username']
                 session['user_type'] = user['type']
@@ -903,26 +728,8 @@ def main():
         print("  • http://localhost:5000/test          - Test page")
         print("  • http://localhost:5000/health        - Health check")
         print("\nDemo credentials:")
-        print("  • Students:")
-        print("      Username: johndoe")
-        print("      Password: password123")
-        print("      User Type: student")
-        print("  • Employers:")
-        print("      Username: employer1")
-        print("      Password: password123")
-        print("      User Type: employer")
-        print("\nAPI Endpoints:")
-        print("  • GET /api/user                       - Get current user info")
-        print("  • GET /api/applications               - Get user applications (students)")
-        print("  • GET /api/applications/:id/response  - Get application response")
-        print("  • GET /api/employer/user              - Get employer user info")
-        print("  • GET /api/employer/positions         - Get employer positions")
-        print("  • POST /api/employer/positions        - Create new position")
-        print("  • PUT /api/employer/positions/:id     - Update position")
-        print("  • DELETE /api/employer/positions/:id  - Delete position")
-        print("  • GET /api/employer/applicants        - Get employer applicants")
-        print("  • GET /api/employer/applicants/:id    - Get specific applicant")
-        print("  • PUT /api/employer/applicants/:id/status - Update applicant status")
+        print("  • Students: johndoe / password123")
+        print("  • Employers: employer1 / password123")
         print("\nPress Ctrl+C to stop the server")
         print("=" * 50)
         
