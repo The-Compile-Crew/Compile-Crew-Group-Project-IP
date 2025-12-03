@@ -295,7 +295,7 @@
             <div class="logo">Applicant Tracking System</div>
             <nav>
                 <ul>
-                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
                     <li><a href="#">All Applicants</a></li>
                     <li><a href="#">Reports</a></li>
                     <li><a href="#">Settings</a></li>
@@ -306,69 +306,61 @@
     
     <div class="container">
         <div class="back-section">
-            <button class="back-btn" onclick="goBack()">←</button>
+            <button class="back-btn" onclick="window.location.href='/dashboard'">←</button>
             <span class="back-text">Return to Dashboard</span>
         </div>
         
-        <div class="position-name" id="positionName">{{ shortlist.position.title }}</div>
-        <div class="student-name" id="studentName">
-            {{ shortlist.student.username }}
-            <span class="current-status status-{{ shortlist.status.value }}" id="currentStatus">{{ shortlist.status.value|capitalize }}</span>
-        </div>
-        
-        <!-- Progress Bar -->
-        <div class="progress-section">
-            <div class="section-title">Application Progress</div>
-            <div class="progress-labels">
-                <span>Applied</span>
-                <span>Shortlisted</span>
-                <span id="progressEndLabel">Accepted</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill progress-applied" id="progressFill"></div>
-            </div>
-            <div class="progress-labels">
-                <span>✓</span>
-                <span id="progressMiddleCheck"></span>
-                <span id="progressEndCheck"></span>
-            </div>
+        <div class="position-name">{{ applicant.position_name }}</div>
+        <div class="student-name">
+            {{ applicant.name }}
+            <span class="current-status status-{{ applicant.status.lower() }}">{{ applicant.status|capitalize }}</span>
         </div>
         
         <div class="application-details">
             <div class="section-title">Application Details</div>
             <div class="detail-row">
                 <div class="detail-label">Email:</div>
-                <div class="detail-value">{{ shortlist.student.email }}</div>
+                <div class="detail-value">{{ applicant.email }}</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Phone:</div>
-                <div class="detail-value">{{ shortlist.student.phone }}</div>
+                <div class="detail-value">{{ applicant.phone }}</div>
             </div>
             <div class="detail-row">
-                <div class="detail-label">Degree:</div>
-                <div class="detail-value">{{ shortlist.student.degree }}</div>
+                <div class="detail-label">Education:</div>
+                <div class="detail-value">{{ applicant.education }}</div>
             </div>
             <div class="detail-row">
-                <div class="detail-label">GPA:</div>
-                <div class="detail-value">{{ shortlist.student.gpa }}</div>
+                <div class="detail-label">Experience:</div>
+                <div class="detail-value">{{ applicant.experience }}</div>
             </div>
             <div class="detail-row">
-                <div class="detail-label">Resume:</div>
-                <div class="detail-value">{{ shortlist.student.resume }}</div>
+                <div class="detail-label">Applied Date:</div>
+                <div class="detail-value">{{ applicant.applied_date }}</div>
             </div>
+            {% if applicant.skills %}
             <div class="detail-row">
-                <div class="detail-label">Position Description:</div>
-                <div class="detail-value">{{ shortlist.position.description }}</div>
+                <div class="detail-label">Skills:</div>
+                <div class="detail-value">
+                    <div class="skills-container">
+                        {% for skill in applicant.skills %}
+                            <div class="skill-tag">{{ skill }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
+            {% endif %}
+            {% if applicant.notes %}
+            <div class="notes-section">
+                <div class="section-title">Notes</div>
+                <div class="notes-content">{{ applicant.notes }}</div>
+            </div>
+            {% endif %}
         </div>
         
         <div class="action-buttons">
-            <form method="POST" action="{{ url_for('shortlist_views.shortlist_decide') }}">
-                <input type="hidden" name="student_user_id" value="{{ shortlist.student.user_id }}">
-                <input type="hidden" name="position_id" value="{{ shortlist.position.id }}">
-                <button class="btn btn-accept" type="submit" name="decision" value="accepted">Accept</button>
-                <button class="btn btn-reject" type="submit" name="decision" value="rejected">Reject</button>
-            </form>
+            <button class="btn btn-accept" onclick="updateStatus('accepted')">Accept</button>
+            <button class="btn btn-reject" onclick="updateStatus('rejected')">Reject</button>
         </div>
     </div>
     
@@ -377,168 +369,12 @@
     </footer>
 
     <script>
-        // Sample applicant data
-        const applicants = {
-            1: {
-                name: "John Smith",
-                email: "john.smith@email.com",
-                phone: "+1 (555) 123-4567",
-                position: "Frontend Developer",
-                appliedDate: "January 15, 2024",
-                status: "Applied",
-                experience: "3 years",
-                education: "Bachelor's in Computer Science",
-                skills: ["React", "JavaScript", "CSS", "HTML", "Git"],
-                notes: "Strong portfolio with modern React projects. Excellent communication skills and team player. Has experience with agile development methodologies."
-            },
-            2: {
-                name: "Sarah Johnson",
-                email: "sarah.j@email.com",
-                phone: "+1 (555) 987-6543",
-                position: "UI/UX Designer",
-                appliedDate: "January 16, 2024",
-                status: "Shortlisted",
-                experience: "4 years",
-                education: "Master's in Design",
-                skills: ["Figma", "UI Design", "User Research", "Prototyping", "Wireframing"],
-                notes: "Excellent design portfolio with detailed case studies. Strong understanding of user-centered design principles."
-            },
-            3: {
-                name: "Michael Chen",
-                email: "m.chen@email.com",
-                phone: "+1 (555) 456-7890",
-                position: "Backend Developer",
-                appliedDate: "January 14, 2024",
-                status: "Accepted",
-                experience: "5 years",
-                education: "Bachelor's in Software Engineering",
-                skills: ["Node.js", "Python", "AWS", "MongoDB", "Docker"],
-                notes: "Strong backend architecture experience. Has successfully deployed multiple large-scale applications."
-            },
-            4: {
-                name: "Emily Davis",
-                email: "emily.davis@email.com",
-                phone: "+1 (555) 234-5678",
-                position: "Product Manager",
-                appliedDate: "January 17, 2024",
-                status: "Rejected",
-                experience: "6 years",
-                education: "MBA",
-                skills: ["Product Strategy", "Agile", "Analytics", "Roadmapping"],
-                notes: "Good overall experience but lacks specific industry knowledge needed for this role."
-            },
-            5: {
-                name: "Robert Wilson",
-                email: "robert.wilson@email.com",
-                phone: "+1 (555) 345-6789",
-                position: "Data Analyst",
-                appliedDate: "January 18, 2024",
-                status: "Applied",
-                experience: "2 years",
-                education: "Bachelor's in Statistics",
-                skills: ["SQL", "Python", "Tableau", "Excel", "R"],
-                notes: "Strong analytical skills with good attention to detail. Needs more experience with large datasets."
-            },
-            6: {
-                name: "Lisa Anderson",
-                email: "lisa.anderson@email.com",
-                phone: "+1 (555) 456-7890",
-                position: "Marketing Manager",
-                appliedDate: "January 13, 2024",
-                status: "Shortlisted",
-                experience: "7 years",
-                education: "Bachelor's in Marketing",
-                skills: ["Digital Marketing", "SEO", "Content Strategy", "Social Media"],
-                notes: "Extensive experience in digital marketing with proven track record of successful campaigns."
-            }
-        };
-
-        // Get applicant ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const applicantId = urlParams.get('id') || 1;
-        const applicant = applicants[applicantId];
-
-        function loadApplicantData() {
-            if (applicant) {
-                document.getElementById('positionName').textContent = applicant.position;
-                document.getElementById('studentName').innerHTML = 
-                    `${applicant.name} <span class="current-status status-${applicant.status.toLowerCase()}" id="currentStatus">${applicant.status}</span>`;
-                
-                document.getElementById('applicantEmail').textContent = applicant.email;
-                document.getElementById('applicantPhone').textContent = applicant.phone;
-                document.getElementById('appliedDate').textContent = applicant.appliedDate;
-                document.getElementById('experience').textContent = applicant.experience;
-                document.getElementById('education').textContent = applicant.education;
-                document.getElementById('applicantNotes').textContent = applicant.notes;
-                
-                // Populate skills
-                const skillsContainer = document.getElementById('skillsContainer');
-                skillsContainer.innerHTML = '';
-                applicant.skills.forEach(skill => {
-                    const skillElement = document.createElement('div');
-                    skillElement.className = 'skill-tag';
-                    skillElement.textContent = skill;
-                    skillsContainer.appendChild(skillElement);
-                });
-                
-                // Update progress bar
-                updateProgressBar(applicant.status);
-            }
-        }
-
-        function updateProgressBar(status) {
-            const progressFill = document.getElementById('progressFill');
-            const progressEndLabel = document.getElementById('progressEndLabel');
-            const progressMiddleCheck = document.getElementById('progressMiddleCheck');
-            const progressEndCheck = document.getElementById('progressEndCheck');
-            
-            // Reset checks
-            progressMiddleCheck.textContent = '';
-            progressEndCheck.textContent = '';
-            
-            switch(status) {
-                case 'Applied':
-                    progressFill.className = 'progress-fill progress-applied';
-                    break;
-                case 'Shortlisted':
-                    progressFill.className = 'progress-fill progress-shortlisted';
-                    progressMiddleCheck.textContent = '✓';
-                    break;
-                case 'Accepted':
-                    progressFill.className = 'progress-fill progress-accepted';
-                    progressMiddleCheck.textContent = '✓';
-                    progressEndCheck.textContent = '✓';
-                    break;
-                case 'Rejected':
-                    progressFill.className = 'progress-fill progress-rejected';
-                    progressEndLabel.textContent = 'Rejected';
-                    progressEndCheck.textContent = '✗';
-                    break;
-            }
-        }
-
         function updateStatus(newStatus) {
             if (confirm(`Are you sure you want to change this applicant's status to ${newStatus}?`)) {
-                applicant.status = newStatus;
-                
-                // Update the status badge
-                const statusElement = document.getElementById('currentStatus');
-                statusElement.textContent = newStatus;
-                statusElement.className = `current-status status-${newStatus.toLowerCase()}`;
-                
-                // Update progress bar
-                updateProgressBar(newStatus);
-                
                 alert(`Applicant status updated to ${newStatus}`);
+                // In a real app, this would send to a backend endpoint
             }
         }
-
-        function goBack() {
-            window.location.href = 'dashboard.html';
-        }
-
-        // Load applicant data when page loads
-        window.onload = loadApplicantData;
     </script>
 </body>
 </html>

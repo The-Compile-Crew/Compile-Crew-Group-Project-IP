@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Position - Internship Platform</title>
+    <title>Edit Position - Internship Platform</title>
     <style>
         * {
             margin: 0;
@@ -154,6 +154,15 @@
             background-color: #7f8c8d;
         }
         
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
         .messages {
             margin-bottom: 20px;
         }
@@ -194,34 +203,34 @@
     
     <div class="container">
         <div class="form-card">
-            <h1 class="form-title">Create New Position</h1>
+            <h1 class="form-title">Edit Position</h1>
             
-            <form method="POST" action="/positions/create">
+            <form method="POST" action="/positions/{{ position.id }}/edit">
                 <div class="form-group">
                     <label for="title">Position Name *</label>
-                    <input type="text" id="title" name="title" required placeholder="e.g. Software Developer Intern">
+                    <input type="text" id="title" name="title" required value="{{ position.name }}" placeholder="e.g. Software Developer Intern">
                 </div>
                 
                 <div class="form-group">
                     <label for="description">Description *</label>
-                    <textarea id="description" name="description" required placeholder="Describe the position and responsibilities..."></textarea>
+                    <textarea id="description" name="description" required placeholder="Describe the position and responsibilities...">{{ position.description }}</textarea>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="capacity">Capacity (Number of Positions) *</label>
-                        <input type="number" id="capacity" name="capacity" min="1" required value="1">
+                        <input type="number" id="capacity" name="capacity" min="1" required value="{{ position.capacity }}">
                     </div>
                     
                     <div class="form-group">
                         <label for="end_date">End Date</label>
-                        <input type="date" id="end_date" name="end_date">
+                        <input type="date" id="end_date" name="end_date" value="{{ position.endDate }}">
                     </div>
                 </div>
                 
                 <div class="form-actions">
                     <a href="/dashboard" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">Create Position</button>
+                    <button type="submit" class="btn btn-primary">Update Position</button>
                 </div>
             </form>
         </div>
