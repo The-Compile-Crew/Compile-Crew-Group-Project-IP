@@ -1,6 +1,12 @@
 import sys
 import traceback
 from datetime import datetime
+import sys
+import traceback
+from datetime import datetime
+import sys
+import traceback
+from datetime import datetime
 
 def main():
     try:
@@ -289,49 +295,55 @@ def main():
             elif user_type == 'employer':
                 # Get employer's positions
                 employer_positions = [pos for pos in app.config['MOCK_EMPLOYER_POSITIONS'] if pos['employer_id'] == user_id]
-                
+
                 # Search filter
                 search_query = request.args.get('search', '').lower()
                 if search_query:
                     employer_positions = [pos for pos in employer_positions 
                                         if search_query in pos['name'].lower() or search_query in pos['description'].lower()]
-                
+
                 # Get applicants for this employer's positions
                 position_ids = [pos['id'] for pos in employer_positions]
                 employer_applicants = [applicant for applicant in app.config['MOCK_EMPLOYER_APPLICANTS'] 
                                       if applicant['position_id'] in position_ids]
-                
+
                 # Search filter for applicants
                 applicant_search = request.args.get('applicant_search', '').lower()
                 if applicant_search:
                     employer_applicants = [a for a in employer_applicants 
                                           if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
-                
+
+                username = session.get('username', 'Employer')
                 return render_template('EmployerDashboard.html', 
                                      positions=employer_positions,
                                      applicants=employer_applicants,
-                                     search_query=search_query)
+                                     search_query=search_query,
+                                     username=username)
             
             elif user_type == 'staff':
                 # Staff can see all positions and applicants
                 all_positions = app.config['MOCK_EMPLOYER_POSITIONS']
                 all_applicants = app.config['MOCK_EMPLOYER_APPLICANTS']
-                
+
                 # Search filters
                 search_query = request.args.get('search', '').lower()
                 if search_query:
                     all_positions = [pos for pos in all_positions 
                                    if search_query in pos['name'].lower() or search_query in pos['description'].lower()]
-                
+
                 applicant_search = request.args.get('applicant_search', '').lower()
                 if applicant_search:
                     all_applicants = [a for a in all_applicants 
                                      if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
-                
+
+                print('DEBUG: session contents:', dict(session))
+                username = session.get('username', None)
+                print('DEBUG: username for staff dashboard:', username)
                 return render_template('StaffDashboard.html', 
                                      positions=all_positions,
                                      applicants=all_applicants,
-                                     search_query=search_query)
+                                     search_query=search_query,
+                                     username=username)
             
             else:
                 return redirect('/login')
@@ -654,6 +666,15 @@ def main():
             except Exception as e:
                 return f"Error adding to shortlist: {str(e)}", 500
         
+        @app.route('/addtoshortlist', methods=['GET'])
+        def add_to_shortlist_screen():
+            if 'user_id' not in session or session.get('user_type') != 'staff':
+                return redirect('/login')
+
+            position_id = request.args.get('position_id', 1, type=int)
+            # Get all students (mock: users of type student)
+            students = [u for u in app.config['MOCK_USERS'].values() if u['type'] == 'student']
+            return render_template('addtoshortlist.html', position_id=position_id, students=students)
         print("✓ All routes configured")
         
         # Startup message

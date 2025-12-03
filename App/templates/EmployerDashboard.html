@@ -542,8 +542,8 @@
             <div class="logo">Applicant Tracking System</div>
             <div class="header-right" id="headerRight">
                 <div class="user-info">
-                    <div class="profile-icon" id="profile-icon">E</div>
-                    <div class="username" id="username-display">Employer</div>
+                    <div class="profile-icon" id="profile-icon">{{ username[0]|upper }}</div>
+                    <div class="username" id="username-display">{{ username }}</div>
                 </div>
                 <button class="logout-btn" id="logoutBtn">Logout</button>
             </div>
