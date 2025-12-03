@@ -71,6 +71,14 @@ def main():
                 'name': 'Data Inc Manager',
                 'email': 'manager@datainc.com',
                 'type': 'employer'
+            },
+            'staff': {
+                'id': 5,
+                'username': 'staff',
+                'password': 'password123',
+                'name': 'Admin Staff',
+                'email': 'staff@example.com',
+                'type': 'staff'
             }
         }
         
@@ -230,6 +238,9 @@ def main():
         app.config['MOCK_APPLICATIONS'] = applications
         app.config['MOCK_EMPLOYER_POSITIONS'] = employer_positions
         app.config['MOCK_EMPLOYER_APPLICANTS'] = employer_applicants
+        
+        # Initialize shortlist storage (position_id -> list of applicant_ids)
+        app.config['STAFF_SHORTLIST'] = {}
         print("✓ Mock data created")
         
         # Check templates directory
@@ -259,11 +270,69 @@ def main():
                 return redirect('/login')
             
             user_type = session.get('user_type')
+            user_id = session.get('user_id')
             
             if user_type == 'student':
-                return render_template('StudentDashboard.html')
+                # Get student's applications
+                student_applications = [application for application in app.config['MOCK_APPLICATIONS'] if application['user_id'] == user_id]
+                # Also get all available positions for students to view
+                all_positions = app.config['MOCK_EMPLOYER_POSITIONS']
+                
+                # Search filter for positions
+                search_query = request.args.get('search', '').lower()
+                if search_query:
+                    all_positions = [pos for pos in all_positions 
+                                   if search_query in pos['name'].lower() or search_query in pos['description'].lower()]
+                
+                return render_template('StudentDashboard.html', applications=student_applications, positions=all_positions, search_query=search_query)
+            
             elif user_type == 'employer':
-                return render_template('EmployerDashboard.html')
+                # Get employer's positions
+                employer_positions = [pos for pos in app.config['MOCK_EMPLOYER_POSITIONS'] if pos['employer_id'] == user_id]
+                
+                # Search filter
+                search_query = request.args.get('search', '').lower()
+                if search_query:
+                    employer_positions = [pos for pos in employer_positions 
+                                        if search_query in pos['name'].lower() or search_query in pos['description'].lower()]
+                
+                # Get applicants for this employer's positions
+                position_ids = [pos['id'] for pos in employer_positions]
+                employer_applicants = [applicant for applicant in app.config['MOCK_EMPLOYER_APPLICANTS'] 
+                                      if applicant['position_id'] in position_ids]
+                
+                # Search filter for applicants
+                applicant_search = request.args.get('applicant_search', '').lower()
+                if applicant_search:
+                    employer_applicants = [a for a in employer_applicants 
+                                          if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
+                
+                return render_template('EmployerDashboard.html', 
+                                     positions=employer_positions,
+                                     applicants=employer_applicants,
+                                     search_query=search_query)
+            
+            elif user_type == 'staff':
+                # Staff can see all positions and applicants
+                all_positions = app.config['MOCK_EMPLOYER_POSITIONS']
+                all_applicants = app.config['MOCK_EMPLOYER_APPLICANTS']
+                
+                # Search filters
+                search_query = request.args.get('search', '').lower()
+                if search_query:
+                    all_positions = [pos for pos in all_positions 
+                                   if search_query in pos['name'].lower() or search_query in pos['description'].lower()]
+                
+                applicant_search = request.args.get('applicant_search', '').lower()
+                if applicant_search:
+                    all_applicants = [a for a in all_applicants 
+                                     if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
+                
+                return render_template('StaffDashboard.html', 
+                                     positions=all_positions,
+                                     applicants=all_applicants,
+                                     search_query=search_query)
+            
             else:
                 return redirect('/login')
         
@@ -271,68 +340,36 @@ def main():
         def review_page():
             if 'user_id' not in session or session.get('user_type') != 'employer':
                 return redirect('/login')
-            return """
-            <!DOCTYPE html>
-            <html>
-            <head><title>Review Applicant</title><style>
-                body { font-family: Arial; padding: 20px; }
-                .container { max-width: 800px; margin: 0 auto; }
-                .back-btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; margin-bottom: 20px; }
-                .applicant-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-            </style></head>
-            <body>
-                <div class="container">
-                    <button class="back-btn" onclick="window.history.back()">← Back</button>
-                    <h1>Review Applicant</h1>
-                    <div class="applicant-info">
-                        <h2>Applicant Details</h2>
-                        <p><strong>Name:</strong> <span id="applicant-name">Loading...</span></p>
-                        <p><strong>Position:</strong> <span id="applicant-position">Loading...</span></p>
-                        <p><strong>Status:</strong> <span id="applicant-status">Loading...</span></p>
-                        <p><strong>Applied:</strong> <span id="applicant-date">Loading...</span></p>
-                        <p><strong>Experience:</strong> <span id="applicant-experience">Loading...</span></p>
-                        <p><strong>Skills:</strong> <span id="applicant-skills">Loading...</span></p>
-                    </div>
-                    <div>
-                        <button onclick="updateStatus('shortlisted')" style="background: #f39c12; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">Shortlist</button>
-                        <button onclick="updateStatus('accepted')" style="background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin-right: 10px;">Accept</button>
-                        <button onclick="updateStatus('rejected')" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 4px;">Reject</button>
-                    </div>
-                </div>
-                <script>
-                    const applicantId = sessionStorage.getItem('currentApplicantId') || 1;
-                    fetch(`/api/employer/applicants/${applicantId}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                const app = data.applicant;
-                                document.getElementById('applicant-name').textContent = app.name;
-                                document.getElementById('applicant-position').textContent = app.position_name;
-                                document.getElementById('applicant-status').textContent = app.status;
-                                document.getElementById('applicant-date').textContent = app.applied_date;
-                                document.getElementById('applicant-experience').textContent = app.experience;
-                                document.getElementById('applicant-skills').textContent = app.skills ? app.skills.join(', ') : 'N/A';
-                            }
-                        });
-                    
-                    function updateStatus(newStatus) {
-                        fetch(`/api/employer/applicants/${applicantId}/status`, {
-                            method: 'PUT',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ status: newStatus })
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(`Status updated to ${newStatus}`);
-                                document.getElementById('applicant-status').textContent = newStatus;
-                            }
-                        });
+            
+            # Get applicant ID from query parameter
+            applicant_id = request.args.get('id', 1, type=int)
+            
+            # Find the applicant in mock data
+            applicant = None
+            for applicant_data in app.config['MOCK_EMPLOYER_APPLICANTS']:
+                if applicant_data['id'] == applicant_id:
+                    applicant = applicant_data
+                    break
+            
+            if not applicant:
+                # Use first applicant as default
+                if app.config['MOCK_EMPLOYER_APPLICANTS']:
+                    applicant = app.config['MOCK_EMPLOYER_APPLICANTS'][0]
+                else:
+                    # Return a page with no applicant data
+                    applicant = {
+                        'name': 'No applicants',
+                        'position_name': 'N/A',
+                        'status': 'N/A',
+                        'applied_date': 'N/A',
+                        'experience': 'N/A',
+                        'skills': [],
+                        'email': 'N/A',
+                        'phone': 'N/A',
+                        'education': 'N/A'
                     }
-                </script>
-            </body>
-            </html>
-            """
+            
+            return render_template('review.html', applicant=applicant)
         
         # ========== AUTHENTICATION ==========
         
@@ -359,13 +396,8 @@ def main():
                 session['user_type'] = user['type']
                 session.permanent = True
                 
-                # Redirect to appropriate dashboard based on user type
-                if user['type'] == 'student':
-                    return redirect('/student-dashboard')
-                elif user['type'] == 'employer':
-                    return redirect('/employerdashboard')
-                else:
-                    return redirect('/StaffDashboard')
+                # Redirect to dashboard (handles user type automatically)
+                return redirect('/dashboard')
                 
             except Exception as e:
                 return f"Error: {str(e)}", 500
@@ -375,39 +407,57 @@ def main():
         
         @app.route('/api/user', methods=['GET'])
         def get_user_info():
-            return redirect('/student-dashboard')
+            if 'user_id' not in session:
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/applications', methods=['GET'])
         def get_user_applications():
-            return redirect('/student-dashboard')
+            if 'user_id' not in session:
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/applications/<int:application_id>/response', methods=['GET'])
         def get_application_response(application_id):
-            return redirect('/student-dashboard')
+            if 'user_id' not in session:
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/employer/user', methods=['GET'])
         def get_employer_user_info():
-            return redirect('/employerdashboard')
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/employer/positions', methods=['GET', 'POST'])
         def get_employer_positions():
-            return redirect('/employerdashboard')
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/employer/positions/<int:position_id>', methods=['PUT', 'DELETE'])
         def update_delete_employer_position(position_id):
-            return redirect('/employerdashboard')
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/employer/applicants', methods=['GET'])
         def get_employer_applicants():
-            return redirect('/employerdashboard')
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/employer/applicants/<int:applicant_id>', methods=['GET'])
         def get_employer_applicant(applicant_id):
-            return redirect('/employerdashboard')
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/employer/applicants/<int:applicant_id>/status', methods=['PUT'])
         def update_applicant_status(applicant_id):
-            return redirect('/employerdashboard')
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            return redirect('/dashboard')
         
         @app.route('/api/auth/login', methods=['POST'])
         def api_login():
@@ -426,6 +476,183 @@ def main():
         def logout():
             session.clear()
             return redirect('/login')
+        
+        # ========== SERVER-RENDERED POSITION PAGES ==========
+        
+        @app.route('/positions/create', methods=['GET', 'POST'])
+        def create_position_page():
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            
+            if request.method == 'POST':
+                # Handle form submission
+                try:
+                    title = request.form.get('title')
+                    description = request.form.get('description')
+                    capacity = request.form.get('capacity')
+                    end_date = request.form.get('end_date')
+                    
+                    if not title or not description or not capacity:
+                        return "All fields are required", 400
+                    
+                    # Mock: Add position to the mock data
+                    new_position = {
+                        'id': len(app.config['MOCK_EMPLOYER_POSITIONS']) + 1,
+                        'employer_id': session['user_id'],
+                        'name': title,
+                        'description': description,
+                        'capacity': int(capacity),
+                        'department': 'general',
+                        'endDate': end_date or '2024-12-31',
+                        'filled': 0,
+                        'created_date': datetime.now().strftime('%Y-%m-%d'),
+                        'status': 'active'
+                    }
+                    app.config['MOCK_EMPLOYER_POSITIONS'].append(new_position)
+                    
+                    return redirect('/dashboard')
+                except Exception as e:
+                    return f"Error creating position: {str(e)}", 500
+            
+            return render_template('positions/create.html')
+        
+        @app.route('/positions/<int:position_id>/edit', methods=['GET', 'POST'])
+        def edit_position_page(position_id):
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            
+            if request.method == 'POST':
+                # Handle form submission for edit
+                try:
+                    title = request.form.get('title')
+                    description = request.form.get('description')
+                    capacity = request.form.get('capacity')
+                    end_date = request.form.get('end_date')
+                    
+                    if not title or not description or not capacity:
+                        return "All fields are required", 400
+                    
+                    # Mock: Update position in mock data
+                    for position in app.config['MOCK_EMPLOYER_POSITIONS']:
+                        if position['id'] == position_id:
+                            position['name'] = title
+                            position['description'] = description
+                            position['capacity'] = int(capacity)
+                            position['endDate'] = end_date or position['endDate']
+                            break
+                    
+                    return redirect('/dashboard')
+                except Exception as e:
+                    return f"Error updating position: {str(e)}", 500
+            
+            # Find and display the position
+            position = None
+            for pos in app.config['MOCK_EMPLOYER_POSITIONS']:
+                if pos['id'] == position_id:
+                    position = pos
+                    break
+            
+            if not position:
+                return "Position not found", 404
+            
+            return render_template('positions/edit.html', position=position)
+        
+        # ========== SHORTLIST ROUTES ==========
+        
+        @app.route('/staff/shortlist/add', methods=['POST'])
+        def staff_add_to_shortlist():
+            if 'user_id' not in session or session.get('user_type') != 'staff':
+                return redirect('/login')
+            
+            try:
+                position_id = request.form.get('position_id')
+                applicant_id = request.form.get('applicant_id')
+                
+                position_id = int(position_id)
+                applicant_id = int(applicant_id)
+                
+                # Initialize shortlist for position if not exists
+                if position_id not in app.config['STAFF_SHORTLIST']:
+                    app.config['STAFF_SHORTLIST'][position_id] = []
+                
+                # Add applicant if not already in shortlist
+                if applicant_id not in app.config['STAFF_SHORTLIST'][position_id]:
+                    app.config['STAFF_SHORTLIST'][position_id].append(applicant_id)
+                
+                return redirect('/dashboard')
+            except Exception as e:
+                print(f"Error adding to shortlist: {str(e)}")
+                return f"Error adding to shortlist: {str(e)}", 500
+        
+        @app.route('/staff/shortlist/<int:position_id>', methods=['GET'])
+        def get_staff_shortlist(position_id):
+            if 'user_id' not in session or session.get('user_type') != 'staff':
+                return redirect('/login')
+            
+            try:
+                # Get applicants in this position's shortlist
+                shortlist_applicant_ids = app.config['STAFF_SHORTLIST'].get(position_id, [])
+                
+                # Get position details
+                position = None
+                for pos in app.config['MOCK_EMPLOYER_POSITIONS']:
+                    if pos['id'] == position_id:
+                        position = pos
+                        break
+                
+                # Get full applicant details for shortlisted applicants
+                shortlisted_applicants = []
+                for applicant in app.config['MOCK_EMPLOYER_APPLICANTS']:
+                    if applicant['id'] in shortlist_applicant_ids:
+                        shortlisted_applicants.append(applicant)
+                
+                return render_template('staff/shortlist.html', 
+                                     position=position,
+                                     shortlisted_applicants=shortlisted_applicants,
+                                     position_id=position_id)
+            except Exception as e:
+                print(f"Error getting shortlist: {str(e)}")
+                return f"Error getting shortlist: {str(e)}", 500
+        
+        @app.route('/staff/shortlist/<int:position_id>/remove/<int:applicant_id>', methods=['POST'])
+        def remove_from_shortlist(position_id, applicant_id):
+            if 'user_id' not in session or session.get('user_type') != 'staff':
+                return redirect('/login')
+            
+            try:
+                if position_id in app.config['STAFF_SHORTLIST']:
+                    if applicant_id in app.config['STAFF_SHORTLIST'][position_id]:
+                        app.config['STAFF_SHORTLIST'][position_id].remove(applicant_id)
+                
+                return redirect(f'/staff/shortlist/{position_id}')
+            except Exception as e:
+                print(f"Error removing from shortlist: {str(e)}")
+                return f"Error removing from shortlist: {str(e)}", 500
+        
+        @app.route('/shortlist/add', methods=['POST'])
+        def add_to_shortlist():
+            if 'user_id' not in session or session.get('user_type') != 'employer':
+                return redirect('/login')
+            
+            try:
+                position_id = request.form.get('position_id')
+                student_id = request.form.get('student_id')
+                student_name = request.form.get('student_name')
+                details = request.form.get('details')
+                
+                # Mock: Add to shortlist (in real app, would save to database)
+                shortlist_entry = {
+                    'position_id': int(position_id),
+                    'student_id': student_id,
+                    'student_name': student_name,
+                    'details': details,
+                    'status': 'pending'
+                }
+                app.config['MOCK_EMPLOYER_APPLICANTS'].append(shortlist_entry)
+                
+                return redirect('/dashboard')
+            except Exception as e:
+                return f"Error adding to shortlist: {str(e)}", 500
         
         print("✓ All routes configured")
         

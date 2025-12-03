@@ -379,7 +379,9 @@
                 <div class="section-label">Shortlisted Positions</div>
             </div>
             
-            <input type="text" id="search-input" placeholder="Search positions..." class="search-bar">
+            <form method="get" action="/dashboard" style="margin-bottom: 20px;">
+                <input type="text" name="search" placeholder="Search positions..." class="search-bar" value="{{ search_query or '' }}">
+            </form>
             
             <!-- Loading indicator -->
             <div class="loading" id="loading-indicator">
@@ -391,21 +393,13 @@
                     {% if applications and applications|length > 0 %}
                         {% for app in applications %}
                         <div class="application-card">
-                            <div class="application-title">{{ app.position.title }}</div>
-                            <div class="application-status">Status: {{ app.status.value|capitalize }}</div>
-                            {% if app.status.value == 'applied' %}
+                            <div class="application-title">{{ app.position_name }}</div>
+                            <div class="application-status">Status: {{ app.status }}</div>
+                            {% if app.status == 'pending' %}
                                 <span class="status-badge status-pending">Applied</span>
-                            {% elif app.status.value == 'shortlisted' %}
-                                <span class="status-badge status-pending">Shortlisted</span>
-                            {% elif app.status.value == 'accepted' %}
-                                <form method="GET" action="{{ url_for('shortlist_views.view_decision', student_id=app.student_id, position_id=app.position.id) }}">
-                                    <button class="btn blue" type="submit">View Response</button>
-                                </form>
+                            {% elif app.status == 'accepted' %}
                                 <span class="status-badge status-accepted">Accepted</span>
-                            {% elif app.status.value == 'rejected' %}
-                                <form method="GET" action="{{ url_for('shortlist_views.view_decision', student_id=app.student_id, position_id=app.position.id) }}">
-                                    <button class="btn blue" type="submit">View Response</button>
-                                </form>
+                            {% elif app.status == 'rejected' %}
                                 <span class="status-badge status-rejected">Rejected</span>
                             {% endif %}
                         </div>
@@ -458,5 +452,6 @@
     </footer>
 
         <!-- ...existing code... -->
-</body>
+    </body>
+</html></body>
 </html>
