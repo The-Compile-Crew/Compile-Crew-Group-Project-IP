@@ -40,8 +40,20 @@
     <div class="decision-card">
       <h1>{{ shortlist.position.title }}</h1>
       <p><strong>Description:</strong> {{ shortlist.position.description }}</p>
-      <p><strong>Employer Decision:</strong> {{ shortlist.status.value|capitalize }}</p>
-      <button class="btn" onclick="window.location.href='/student-dashboard'">← Return</button>
+      <p><strong>Employer Decision:</strong>
+        {% if shortlist.status.value == 'accepted' %}
+          <span style="color: #27ae60; font-weight: bold;">Accepted</span>
+          <br>
+          <button class="btn btn-accept" disabled>Accepted</button>
+        {% elif shortlist.status.value == 'rejected' %}
+          <span style="color: #e74c3c; font-weight: bold;">Rejected</span>
+          <br>
+          <button class="btn btn-reject" disabled>Rejected</button>
+        {% else %}
+          <span style="color: #f39c12; font-weight: bold;">Pending</span>
+        {% endif %}
+      </p>
+      <button class="btn" onclick="window.location.href='/student-dashboard'"> Return</button>
     </div>
   </div>
 </body>

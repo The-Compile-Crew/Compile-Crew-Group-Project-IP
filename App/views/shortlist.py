@@ -24,8 +24,10 @@ def review_application(student_id, position_id):
 @shortlist_views.route('/shortlist/add/<int:position_id>', methods=['GET'])
 def show_add_to_shortlist(position_id):
     from App.models.position import Position
+    from App.models.student import Student
     position = Position.query.get_or_404(position_id)
-    return render_template('addtoshortlist.html', position=position)
+    students = Student.query.all()
+    return render_template('addtoshortlist.html', position=position, students=students)
 
 
 
@@ -40,12 +42,15 @@ def add_student_shortlist():
         return redirect(url_for('auth_views.staff_dashboard'))
 
     student_user_id = request.form.get('student_user_id')
+    student_name = request.form.get('student_name')
+    student_id = request.form.get('student_id')
+    details = request.form.get('details')
     position_id = request.form.get('position_id')
-    if not student_user_id or not position_id:
+    if not student_user_id or not position_id or not student_name or not student_id or not details:
         flash('Missing parameters')
         return redirect(url_for('auth_views.staff_dashboard'))
 
-    result = add_student_to_shortlist(int(student_user_id), int(position_id), int(staff_user_id))
+    result = add_student_to_shortlist(int(student_user_id), int(position_id), int(staff_user_id), student_name, student_id, details)
     if result:
         flash('Student added to shortlist')
     else:

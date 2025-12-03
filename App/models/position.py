@@ -20,7 +20,8 @@ class Position(db.Model):
     def __init__(self, title, employer_id, number, description=None, end_date=None):
         self.title = title
         self.employer_id = employer_id
-        self.status = "open"
+        from App.models.position import PositionStatus
+        self.status = PositionStatus.open
         self.number_of_positions = number
         self.description = description
         self.end_date = end_date

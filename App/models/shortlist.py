@@ -29,6 +29,9 @@ class Shortlist(db.Model):
     __tablename__ = 'shortlist'
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    student_name = db.Column(db.String(128), nullable=False)
+    student_identifier = db.Column(db.String(32), nullable=False)
+    details = db.Column(db.Text, nullable=False)
     title = db.Column(db.String(512), nullable=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
@@ -41,14 +44,17 @@ class Shortlist(db.Model):
      
     
 
-    def __init__(self, student_id, position_id, staff_id, title, state):
+    def __init__(self, student_id, position_id, staff_id, title, state, student_name, student_identifier, details):
         self.student_id = student_id
         self.position_id = position_id
         self.status = DecisionStatus.applied
         self.staff_id = staff_id
         self.title = title
-        self.state = state
-        self.set_state_from_status(self.status)
+        # Store only the state string, not the object
+        self.state = self.status.value
+        self.student_name = student_name
+        self.student_identifier = student_identifier
+        self.details = details
 
 #new method to set state based on status
     def set_state(self, state: ShortlistState):

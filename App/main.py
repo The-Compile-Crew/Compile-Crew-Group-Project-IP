@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template
-from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
+from flask_uploads import IMAGES, TEXT, UploadSet, configure_uploads
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import  FileStorage
@@ -27,7 +27,7 @@ def create_app(overrides={}):
     load_config(app, overrides)
     CORS(app)
     add_auth_context(app)
-    photos = UploadSet('photos', TEXT + DOCUMENTS + IMAGES)
+    photos = UploadSet('photos', TEXT + IMAGES)
     configure_uploads(app, photos)
     add_views(app)
     init_db(app)

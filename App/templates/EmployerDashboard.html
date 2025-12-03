@@ -609,12 +609,13 @@
                             {% set has_applicants = true %}
                             <div class="student-widget">
                                 <div class="student-info">
-                                    <div class="student-name">{{ shortlist.student.username }}</div>
+                                    <div class="student-name">Name: {{ shortlist.student_name }}</div>
+                                    <div class="student-id">Student ID: {{ shortlist.student_identifier }}</div>
                                     <div class="student-status">Status: {{ shortlist.status.value|capitalize }}</div>
-                                    <div class="student-id">Student ID: {{ shortlist.student.student_id }}</div>
                                     <div class="position-title">For: {{ position.title }}</div>
+                                    <div class="student-details">Details: {{ shortlist.details }}</div>
                                 </div>
-                                <form method="GET" action="{{ url_for('shortlist_views.review_application', student_id=shortlist.student.user_id, position_id=position.id) }}">
+                                <form method="GET" action="{{ url_for('shortlist_views.review_application', student_id=shortlist.student_id, position_id=position.id) }}">
                                     <button class="btn blue" type="submit">Review</button>
                                 </form>
                             </div>
