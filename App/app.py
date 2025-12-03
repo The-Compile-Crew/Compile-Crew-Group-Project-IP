@@ -38,14 +38,13 @@ def staff_add_to_shortlist():
         position_id = request.form.get('position_id', 1)
         student_id = request.form.get('student_id') or request.form.get('student_user_id')
         student_name = request.form.get('student_name') or request.form.get('name')
-        email = request.form.get('email')
         details = request.form.get('details')
-        db.execute('INSERT INTO applicants (name, email, student_id, details, position_id, status, applied_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                   (student_name, email, student_id, details, position_id, 'shortlisted', datetime.now().strftime('%Y-%m-%d')))
+        db.execute('INSERT INTO applicants (name, student_id, details, position_id, status, applied_date) VALUES (?, ?, ?, ?, ?, ?)',
+                   (student_name, student_id, details, position_id, 'shortlisted', datetime.now().strftime('%Y-%m-%d')))
         db.commit()
         return redirect('/dashboard')
     # GET: Render form
-    students = [dict(row) for row in db.execute('SELECT * FROM users WHERE type = "student"').fetchall()]
+    students = [dict(row) for row in db.execute('SELECT id, username FROM users WHERE type = "student"').fetchall()]
     position_id = request.args.get('position_id', 1)
     return render_template('addtoshortlist.html', students=students, position_id=position_id)
 
@@ -60,7 +59,6 @@ def main():
             1: {'username':'staff',
                 'password': 'password123',
                 'name': 'Admin Staff',
-                'email': 'staff@example.com',
                 'type': 'staff'}
         }
         
@@ -190,7 +188,6 @@ def main():
                 'position_id': 1,
                 'position_name': "Software Developer Intern",
                 'name': "John Smith",
-                'email': "john.smith@email.com",
                 'phone': "+1 (555) 123-4567",
                 'applied_date': "2024-01-15",
                 'status': "applied",
@@ -204,7 +201,6 @@ def main():
                 'position_id': 1,
                 'position_name': "Software Developer Intern",
                 'name': "Sarah Johnson",
-                'email': "sarah.j@email.com",
                 'phone': "+1 (555) 987-6543",
                 'applied_date': "2024-01-16",
                 'status': "shortlisted",
@@ -218,7 +214,6 @@ def main():
                 'position_id': 2,
                 'position_name': "UI/UX Designer",
                 'name': "Michael Chen",
-                'email': "m.chen@email.com",
                 'phone': "+1 (555) 456-7890",
                 'applied_date': "2024-01-14",
                 'status': "accepted",
@@ -297,7 +292,7 @@ def main():
                 applicant_search = request.args.get('applicant_search', '').lower()
                 if applicant_search:
                     employer_applicants = [a for a in employer_applicants 
-                                          if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
+                                        if applicant_search in a['name'].lower()]
                 return render_template('EmployerDashboard.html', 
                                      positions=employer_positions,
                                      applicants=employer_applicants,
@@ -317,7 +312,7 @@ def main():
                 applicant_search = request.args.get('applicant_search', '').lower()
                 if applicant_search:
                     all_applicants = [a for a in all_applicants 
-                                     if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
+                                    if applicant_search in a['name'].lower()]
                 
                 return render_template('StaffDashboard.html', 
                                      positions=all_positions,
@@ -355,7 +350,6 @@ def main():
                         'applied_date': 'N/A',
                         'experience': 'N/A',
                         'skills': [],
-                        'email': 'N/A',
                         'phone': 'N/A',
                         'education': 'N/A'
                     }
@@ -630,14 +624,13 @@ def main():
                 username = request.form.get('username')
                 password = request.form.get('password')
                 user_type = request.form.get('user_type')
-                email = request.form.get('email')
                 if not username or not password or not user_type:
                     return "All fields are required", 400
                 cur = db.execute('SELECT id FROM users WHERE username = ?', (username,))
                 if cur.fetchone():
                     return "Username already exists", 400
-                db.execute('INSERT INTO users (username, password, email, type) VALUES (?, ?, ?, ?)',
-                           (username, password, email, user_type))
+                db.execute('INSERT INTO users (username, password, type) VALUES (?, ?, ?)',
+                           (username, password, user_type))
                 db.commit()
                 return redirect('/login')
             except Exception as e:
