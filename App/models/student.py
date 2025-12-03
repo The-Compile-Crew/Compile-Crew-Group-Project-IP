@@ -9,7 +9,6 @@ class Student(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
     student_id = db.Column(db.String(32), nullable=True, unique=True)
     username =  db.Column(db.String(20), nullable=False, unique=True)
-    email = db.Column(db.String(256))
     dob = db.Column(db.Date)
     gender = db.Column(db.String(256))
     degree = db.Column(db.String(256))

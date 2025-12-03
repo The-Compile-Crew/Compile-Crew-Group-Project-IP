@@ -41,6 +41,20 @@
 
     <div class="main-container">
         <div class="left-panel">
+            <button class="btn btn-primary" style="margin-bottom:12px" onclick="document.getElementById('studentModal').style.display='block'">Show Student Users</button>
+            <div id="studentModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:1000;align-items:center;justify-content:center;">
+                <div style="background:#fff;padding:24px 32px;border-radius:8px;max-width:400px;margin:60px auto;box-shadow:0 2px 12px #0002;">
+                    <div style="font-weight:700;font-size:18px;margin-bottom:12px;">Student Users</div>
+                    <ul style="list-style:none;padding:0;max-height:300px;overflow-y:auto;">
+                        {% for stud in students %}
+                            <li style="padding:8px 0;border-bottom:1px solid #eee;font-size:15px;">
+                                <strong>{{ stud.username }}</strong> &mdash; ID: {{ stud.student_id }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn" onclick="document.getElementById('studentModal').style.display='none'" style="margin-top:16px;background:#e74c3c;color:#fff;">Close</button>
+                </div>
+            </div>
             <div class="panel-header">Positions</div>
             <div class="search-box" style="margin-bottom:12px">
                 <input id="positionSearch" placeholder="🔍 Search positions" onkeyup="filterPositions()">
@@ -116,10 +130,7 @@
                     <div class="shortlist-item">
                         <div>
                             <div style="font-weight:700">${app.name}</div>
-                            <div style="font-size:13px;color:#666">${app.email || ''}</div>
-                            <div style="font-size:12px;color:#888;margin-top:4px">
-                                Position: ${app.position_name || 'Unknown'}
-                            </div>
+                            <div style="font-size:12px;color:#888;margin-top:4px">Applicant ID: ${app.id}</div>
                         </div>
                         <button class="delist-btn" onclick="removeFromShortlist(${positionId}, ${applicantId})">Remove</button>
                     </div>`;
@@ -148,6 +159,7 @@
         }
 
         function filterPositions() { 
+                                        // ...existing code...
             const q = document.getElementById('positionSearch').value.toLowerCase(); 
             document.querySelectorAll('.position-item').forEach(item => { 
                 const text = item.querySelector('div').textContent.toLowerCase(); 
@@ -169,14 +181,7 @@
         }
 
         // Initialize with first position selected if available
-        {% if positions and positions|length > 0 %}
-            setTimeout(() => {
-                const firstPosition = document.querySelector('.position-item');
-                if (firstPosition) {
-                    selectPosition(firstPosition, allPositions[0]);
-                }
-            }, 100);
-        {% endif %}
+        // ...existing code...
     </script>
 </body>
 </html>

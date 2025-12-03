@@ -27,7 +27,8 @@ def show_add_to_shortlist(position_id):
     from App.models.student import Student
     position = Position.query.get_or_404(position_id)
     students = Student.query.all()
-    return render_template('addtoshortlist.html', position=position, students=students)
+    student_list = [{'username': s.username, 'student_id': s.student_id} for s in students]
+    return render_template('addtoshortlist.html', position=position, students=student_list)
 
 
 
@@ -41,16 +42,17 @@ def add_student_shortlist():
         flash('Not authenticated')
         return redirect(url_for('auth_views.staff_dashboard'))
 
-    student_user_id = request.form.get('student_user_id')
-    student_name = request.form.get('student_name')
     student_id = request.form.get('student_id')
     details = request.form.get('details')
     position_id = request.form.get('position_id')
-    if not student_user_id or not position_id or not student_name or not student_id or not details:
-        flash('Missing parameters')
+    # Lookup student by student_id
+    from App.models.student import Student
+    student = Student.query.filter_by(student_id=student_id).first()
+    if not student or not position_id or not student_id or not details:
+        flash('Missing parameters or invalid student ID')
         return redirect(url_for('auth_views.staff_dashboard'))
 
-    result = add_student_to_shortlist(int(student_user_id), int(position_id), int(staff_user_id), student_name, student_id, details)
+    result = add_student_to_shortlist(student.id, int(position_id), int(staff_user_id), student.username, student_id, details)
     if result:
         flash('Student added to shortlist')
     else:
