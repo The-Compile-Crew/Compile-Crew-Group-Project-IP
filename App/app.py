@@ -72,7 +72,7 @@ def main():
                 'position_name': "Software Developer Intern",
                 'company': "Tech Corp",
                 'description': "Develop and maintain web applications using modern frameworks. Work with a team of experienced developers.",
-                'status': "pending",
+                'status': "applied",
                 'applied_date': "2024-03-15",
                 'last_updated': "2024-03-20",
                 'details': {
@@ -115,11 +115,25 @@ def main():
             },
             {
                 'id': 4,
+                'user_id': 1,
+                'position_name': "Frontend Developer",
+                'company': "Web Solutions",
+                'description': "Build responsive and modern user interfaces using React and TypeScript.",
+                'status': "shortlisted",
+                'applied_date': "2024-03-18",
+                'last_updated': "2024-03-22",
+                'details': {
+                    'feedback': "You have been shortlisted! We will contact you soon.",
+                    'submitted_date': "2024-03-18"
+                }
+            },
+            {
+                'id': 5,
                 'user_id': 2,
                 'position_name': "Marketing Intern",
                 'company': "Marketing Pro",
                 'description': "Assist in creating marketing campaigns, social media management, and content creation.",
-                'status': "pending",
+                'status': "applied",
                 'applied_date': "2024-03-20",
                 'last_updated': "2024-03-22",
                 'details': {
@@ -601,7 +615,7 @@ def main():
                     'student_id': student_id,
                     'student_name': student_name,
                     'details': details,
-                    'status': 'pending'
+                    'status': 'applied'
                 }
                 app.config['MOCK_EMPLOYER_APPLICANTS'].append(shortlist_entry)
                 
