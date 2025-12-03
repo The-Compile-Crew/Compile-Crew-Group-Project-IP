@@ -1,85 +1,67 @@
+        # ...existing code...
 import sys
 import traceback
 from datetime import datetime
+import sqlite3
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import os
+from datetime import timedelta
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-12345')
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-12345')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
+CORS(app, supports_credentials=True)
+jwt = JWTManager(app)
+
+def get_db():
+    if not hasattr(app, 'db_conn'):
+        app.db_conn = sqlite3.connect('App/appdata.db', check_same_thread=False)
+        app.db_conn.row_factory = sqlite3.Row
+    return app.db_conn
+
+def init_db():
+    db = get_db()
+    with open('App/schema.sql', 'r') as f:
+        db.executescript(f.read())
+init_db()
+
+@app.route('/staff/addtoshortlist', methods=['GET', 'POST'])
+def staff_add_to_shortlist():
+    if 'user_id' not in session or session.get('user_type') != 'staff':
+        return redirect('/login')
+    db = get_db()
+    if request.method == 'POST':
+        position_id = request.form.get('position_id', 1)
+        student_id = request.form.get('student_id') or request.form.get('student_user_id')
+        student_name = request.form.get('student_name') or request.form.get('name')
+        email = request.form.get('email')
+        details = request.form.get('details')
+        db.execute('INSERT INTO applicants (name, email, student_id, details, position_id, status, applied_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                   (student_name, email, student_id, details, position_id, 'shortlisted', datetime.now().strftime('%Y-%m-%d')))
+        db.commit()
+        return redirect('/dashboard')
+    # GET: Render form
+    students = [dict(row) for row in db.execute('SELECT * FROM users WHERE type = "student"').fetchall()]
+    position_id = request.args.get('position_id', 1)
+    return render_template('addtoshortlist.html', students=students, position_id=position_id)
+
+print("=" * 50)
+print("Starting Flask Internship Platform")
+print("=" * 50)
 
 def main():
     try:
-        print("=" * 50)
-        print("Starting Flask Internship Platform")
-        print("=" * 50)
-        
-        # Try to import all modules
-        print("\n[1/4] Importing modules...")
-        from flask import Flask, render_template, jsonify, request, redirect, url_for, session
-        from flask_cors import CORS
-        from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-        import os
-        from datetime import timedelta
-        
-        print("✓ All imports successful")
-        
-        # Initialize Flask app
-        print("\n[2/4] Initializing Flask app...")
-        app = Flask(__name__)
-        
-        # Configure app
-        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-12345')
-        app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key-12345')
-        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
-        app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
-        print("✓ App configuration set")
-        
-        # Enable CORS
-        CORS(app, supports_credentials=True)
-        print("✓ CORS enabled")
-        
-        # Initialize JWT
-        jwt = JWTManager(app)
-        print("✓ JWT initialized")
-        
         # Mock user data
-        print("\n[3/4] Setting up mock data...")
         users = {
-            'johndoe': {
-                'id': 1,
-                'username': 'johndoe',
-                'password': 'password123',
-                'name': 'John Doe',
-                'email': 'john.doe@example.com',
-                'type': 'student'
-            },
-            'janedoe': {
-                'id': 2,
-                'username': 'janedoe',
-                'password': 'password123',
-                'name': 'Jane Doe',
-                'email': 'jane.doe@example.com',
-                'type': 'student'
-            },
-            'employer1': {
-                'id': 3,
-                'username': 'employer1',
-                'password': 'password123',
-                'name': 'Tech Corp HR',
-                'email': 'hr@techcorp.com',
-                'type': 'employer'
-            },
-            'employer2': {
-                'id': 4,
-                'username': 'employer2',
-                'password': 'password123',
-                'name': 'Data Inc Manager',
-                'email': 'manager@datainc.com',
-                'type': 'employer'
-            },
-            'staff': {
-                'id': 5,
-                'username': 'staff',
+            1: {'username':'staff',
                 'password': 'password123',
                 'name': 'Admin Staff',
                 'email': 'staff@example.com',
-                'type': 'staff'
-            }
+                'type': 'staff'}
         }
         
         # Mock applications data for students
@@ -287,26 +269,21 @@ def main():
                 return render_template('StudentDashboard.html', applications=student_applications, positions=all_positions, search_query=search_query)
             
             elif user_type == 'employer':
-                # Get employer's positions
+                db = get_db()
+                # Get employer's positions (still mock for now)
                 employer_positions = [pos for pos in app.config['MOCK_EMPLOYER_POSITIONS'] if pos['employer_id'] == user_id]
-                
-                # Search filter
                 search_query = request.args.get('search', '').lower()
                 if search_query:
                     employer_positions = [pos for pos in employer_positions 
                                         if search_query in pos['name'].lower() or search_query in pos['description'].lower()]
-                
-                # Get applicants for this employer's positions
                 position_ids = [pos['id'] for pos in employer_positions]
-                employer_applicants = [applicant for applicant in app.config['MOCK_EMPLOYER_APPLICANTS'] 
-                                      if applicant['position_id'] in position_ids]
-                
-                # Search filter for applicants
+                placeholders = ','.join(['?']*len(position_ids)) if position_ids else 'NULL'
+                query = f'SELECT * FROM applicants WHERE position_id IN ({placeholders})' if position_ids else 'SELECT * FROM applicants WHERE 0'
+                employer_applicants = [dict(row) for row in db.execute(query, position_ids).fetchall()] if position_ids else []
                 applicant_search = request.args.get('applicant_search', '').lower()
                 if applicant_search:
                     employer_applicants = [a for a in employer_applicants 
                                           if applicant_search in a['name'].lower() or applicant_search in a['email'].lower()]
-                
                 return render_template('EmployerDashboard.html', 
                                      positions=employer_positions,
                                      applicants=employer_applicants,
@@ -376,29 +353,30 @@ def main():
         @app.route('/simple_login', methods=['POST'])
         def simple_login():
             try:
+                db = get_db()
                 username = request.form.get('username')
                 password = request.form.get('password')
-                user_type = request.form.get('userType')
-                
+                user_type = request.form.get('userType') or request.form.get('user_type')
+
                 if not username or not password:
                     return "Username and password required", 400
-                
-                if username not in users or users[username]['password'] != password:
+
+                cur = db.execute('SELECT * FROM users WHERE username = ?', (username,))
+                user = cur.fetchone()
+                if not user or user['password'] != password:
                     return "Invalid credentials", 401
-                
-                user = users[username]
-                
+
                 if user_type and user['type'] != user_type:
                     return f"User is type {user['type']}, not {user_type}", 403
-                
+
                 session['user_id'] = user['id']
                 session['username'] = user['username']
                 session['user_type'] = user['type']
                 session.permanent = True
-                
+
                 # Redirect to dashboard (handles user type automatically)
                 return redirect('/dashboard')
-                
+
             except Exception as e:
                 return f"Error: {str(e)}", 500
         
@@ -559,30 +537,6 @@ def main():
         
         # ========== SHORTLIST ROUTES ==========
         
-        @app.route('/staff/shortlist/add', methods=['POST'])
-        def staff_add_to_shortlist():
-            if 'user_id' not in session or session.get('user_type') != 'staff':
-                return redirect('/login')
-            
-            try:
-                position_id = request.form.get('position_id')
-                applicant_id = request.form.get('applicant_id')
-                
-                position_id = int(position_id)
-                applicant_id = int(applicant_id)
-                
-                # Initialize shortlist for position if not exists
-                if position_id not in app.config['STAFF_SHORTLIST']:
-                    app.config['STAFF_SHORTLIST'][position_id] = []
-                
-                # Add applicant if not already in shortlist
-                if applicant_id not in app.config['STAFF_SHORTLIST'][position_id]:
-                    app.config['STAFF_SHORTLIST'][position_id].append(applicant_id)
-                
-                return redirect('/dashboard')
-            except Exception as e:
-                print(f"Error adding to shortlist: {str(e)}")
-                return f"Error adding to shortlist: {str(e)}", 500
         
         @app.route('/staff/shortlist/<int:position_id>', methods=['GET'])
         def get_staff_shortlist(position_id):
@@ -609,7 +563,8 @@ def main():
                 return render_template('staff/shortlist.html', 
                                      position=position,
                                      shortlisted_applicants=shortlisted_applicants,
-                                     position_id=position_id)
+                                     position_id=position_id,
+                                     students=[u for u in app.config['MOCK_USERS'].values() if u['type'] == 'student'])
             except Exception as e:
                 print(f"Error getting shortlist: {str(e)}")
                 return f"Error getting shortlist: {str(e)}", 500
@@ -654,6 +609,25 @@ def main():
             except Exception as e:
                 return f"Error adding to shortlist: {str(e)}", 500
         
+        @app.route('/simple_signup', methods=['POST'])
+        def simple_signup():
+            try:
+                db = get_db()
+                username = request.form.get('username')
+                password = request.form.get('password')
+                user_type = request.form.get('user_type')
+                email = request.form.get('email')
+                if not username or not password or not user_type:
+                    return "All fields are required", 400
+                cur = db.execute('SELECT id FROM users WHERE username = ?', (username,))
+                if cur.fetchone():
+                    return "Username already exists", 400
+                db.execute('INSERT INTO users (username, password, email, type) VALUES (?, ?, ?, ?)',
+                           (username, password, email, user_type))
+                db.commit()
+                return redirect('/login')
+            except Exception as e:
+                return f"Error creating account: {str(e)}", 500
         print("✓ All routes configured")
         
         # Startup message

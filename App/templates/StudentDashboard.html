@@ -357,8 +357,8 @@
             <div class="logo">Internship Platform</div>
             <div class="header-right">
                 <div class="user-info">
-                    <div class="profile-icon" id="profile-icon">{{ username[0]|upper if username else 'S' }}</div>
-                    <div class="username" id="username-display">{{ username or 'Student' }}</div>
+                    <div class="profile-icon" id="profile-icon">{{ session['username'][0]|upper if session['username'] else 'U' }}</div>
+                    <div class="username" id="username-display">{{ session['username'] if session['username'] else 'Unknown User' }}</div>
                 </div>
                 <a href="/logout" class="logout-btn" id="logout-btn" style="text-decoration:none;display:inline-block;">Logout</a>
             </div>

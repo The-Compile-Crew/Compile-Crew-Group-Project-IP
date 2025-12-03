@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard - Applicant Tracking System</title>
     <style>
-        /* Compact styles for two-column dashboard and modal */
+        /* Compact styles for two-column dashboard */
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f7fa; color:#333; margin:0; }
         header { background:#2c3e50; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; }
@@ -17,24 +17,22 @@
         .panel-header{font-weight:700;margin-bottom:12px;color:#2c3e50}
         .search-box input, .shortlist-search input{width:100%;padding:9px;border:1px solid #ddd;border-radius:4px}
         .positions-list{display:flex;flex-direction:column;gap:10px}
-        .position-item{background:#f8f9fa;border:1px solid #ddd;padding:12px;border-radius:8px;cursor:pointer}
+        .position-item{background:#f8f9fa;border:1px solid #ddd;padding:12px;border-radius:8px}
         .position-item.selected{border-left:4px solid #9b59b6;background:#eef}
         .position-actions{margin-top:8px}
-        .btn{padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
+        .btn{padding:8px 12px;border-radius:6px;border:none;cursor:pointer;text-decoration:none;display:inline-block;font-size:14px;}
         .btn-primary{background:#9b59b6;color:#fff}
+        .btn-primary:hover{background:#8e44ad}
         .shortlist-item{background:#fff;border:1px solid #ddd;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center}
         .delist-btn{background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
         .empty-shortlist{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#7f8c8d}
-        .modal{display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999}
-        .modal-content{background:#fff;margin:10% auto;padding:20px;border-radius:8px;max-width:480px}
-        .form-input{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
     </style>
 </head>
 <body>
     <header>
         <div style="display:flex;gap:12px;align-items:center">
-            <div class="profile-icon">👤</div>
-            <div style="font-weight:700">DASHBOARD</div>
+            <div class="profile-icon">{{ session['username'][0]|upper if session['username'] else 'U' }}</div>
+            <div style="font-weight:700">{{ session['username'] if session['username'] else 'Unknown User' }}</div>
         </div>
         <div>
             <button class="logout-btn" onclick="logout()">Logout</button>
@@ -45,7 +43,7 @@
         <div class="left-panel">
             <div class="panel-header">Positions</div>
             <div class="search-box" style="margin-bottom:12px">
-                <input id="positionSearch" placeholder="🔍 search/Filter" onkeyup="filterPositions()">
+                <input id="positionSearch" placeholder="🔍 Search positions" onkeyup="filterPositions()">
             </div>
             <div class="positions-list" id="positionsList">
                 {% if positions and positions|length > 0 %}
@@ -54,7 +52,7 @@
                             <div style="font-weight:700">{{ position.name }}</div>
                             <div style="font-size:13px;color:#666;margin-top:6px">{{ position.description or '' }}</div>
                             <div class="position-actions">
-                                <button class="btn btn-primary" onclick="openAddModal(event, {{ position|tojson }})">Add to Shortlist</button>
+                                <a href="/staff/addtoshortlist?position_id={{ position.id }}" class="btn btn-primary">Add to Shortlist</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -67,7 +65,9 @@
         <div class="right-panel">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
                 <div style="font-weight:700">Shortlist</div>
-                <div style="width:260px"><input class="shortlist-search" id="shortlistSearch" placeholder="🔍 search/Filter" onkeyup="filterShortlist()"></div>
+                <div style="width:260px">
+                    <input class="shortlist-search" id="shortlistSearch" placeholder="🔍 Search shortlist" onkeyup="filterShortlist()">
+                </div>
             </div>
 
             <div id="shortlistContainer">
@@ -76,33 +76,6 @@
                     <div>Select a position to view shortlist</div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <div style="margin-bottom:10px"><a href="#" onclick="closeModal();return false">← Return to Dashboard</a></div>
-            <h2 style="margin:0 0 12px 0">Add to Shortlist</h2>
-            <form id="addShortlistForm" method="POST" action="/staff/shortlist/add">
-                <div style="margin-bottom:8px">
-                    <label class="form-label">Student Name</label>
-                    <input type="text" id="studentName" class="form-input" readonly>
-                </div>
-                <div style="margin-bottom:8px">
-                    <label class="form-label">Student ID</label>
-                    <input type="text" id="studentId" class="form-input" readonly>
-                </div>
-                <div style="margin-bottom:8px">
-                    <label class="form-label">Details</label>
-                    <input type="text" id="details" name="details" class="form-input">
-                </div>
-                <input type="hidden" id="modalPositionId" name="position_id">
-                <input type="hidden" id="modalApplicantId" name="applicant_id">
-                <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add to Shortlist</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -122,58 +95,88 @@
         function updateShortlistDisplay(positionId) {
             const container = document.getElementById('shortlistContainer');
             const shortlisted = staffShortlist[positionId] || [];
+            
             if (!shortlisted || shortlisted.length === 0) {
-                container.innerHTML = `<div class="empty-shortlist"><div style="font-size:36px;opacity:.6">📋</div><div>No applicants shortlisted for this position yet</div></div>`;
+                container.innerHTML = `
+                    <div class="empty-shortlist">
+                        <div style="font-size:36px;opacity:.6">📋</div>
+                        <div>No applicants shortlisted for this position yet</div>
+                        <div style="margin-top:10px;font-size:14px;">
+                            Click "Add to Shortlist" to add applicants
+                        </div>
+                    </div>`;
                 return;
             }
+            
             let html = '';
             shortlisted.forEach(applicantId => {
                 const app = allApplicants.find(a => a.id === applicantId);
                 if (!app) return;
-                html += `<div class="shortlist-item"><div><div style="font-weight:700">${app.name}</div><div style="font-size:13px;color:#666">${app.email || ''}</div></div><button class="delist-btn" onclick="removeFromShortlist(${positionId}, ${applicantId})">Delist</button></div>`;
+                html += `
+                    <div class="shortlist-item">
+                        <div>
+                            <div style="font-weight:700">${app.name}</div>
+                            <div style="font-size:13px;color:#666">${app.email || ''}</div>
+                            <div style="font-size:12px;color:#888;margin-top:4px">
+                                Position: ${app.position_name || 'Unknown'}
+                            </div>
+                        </div>
+                        <button class="delist-btn" onclick="removeFromShortlist(${positionId}, ${applicantId})">Remove</button>
+                    </div>`;
             });
             container.innerHTML = html;
         }
 
-        function openAddModal(e, position) {
-            e.stopPropagation();
-            selectedPosition = position;
-            document.getElementById('modalPositionId').value = position.id;
-            const positionApplicants = allApplicants.filter(a => a.position_id === position.id);
-            const shortlistedIds = staffShortlist[position.id] || [];
-            const available = positionApplicants.find(a => !shortlistedIds.includes(a.id)) || positionApplicants[0];
-            if (available) {
-                document.getElementById('studentName').value = available.name || '';
-                document.getElementById('studentId').value = available.id || '';
-                document.getElementById('modalApplicantId').value = available.id || '';
-                document.getElementById('details').value = `Email: ${available.email || ''} | Phone: ${available.phone || ''}`;
-            }
-            document.getElementById('addModal').style.display = 'block';
-        }
-
-        function closeModal() { document.getElementById('addModal').style.display = 'none'; document.getElementById('addShortlistForm').reset(); }
-
         function removeFromShortlist(positionId, applicantId) {
             if (!confirm('Remove this applicant from shortlist?')) return;
-            fetch(`/staff/shortlist/${positionId}/remove/${applicantId}`, { method: 'POST' })
-                .then(res => { if (res.ok) { if (staffShortlist[positionId]) staffShortlist[positionId] = staffShortlist[positionId].filter(id => id !== applicantId); updateShortlistDisplay(positionId); } })
-                .catch(console.error);
+            
+            fetch(`/staff/shortlist/${positionId}/remove/${applicantId}`, { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(res => { 
+                if (res.ok) { 
+                    if (staffShortlist[positionId]) {
+                        staffShortlist[positionId] = staffShortlist[positionId].filter(id => id !== applicantId); 
+                    }
+                    updateShortlistDisplay(positionId); 
+                } 
+            })
+            .catch(console.error);
         }
 
-        document.getElementById('addShortlistForm').addEventListener('submit', function(e){
-            e.preventDefault();
-            const posId = parseInt(document.getElementById('modalPositionId').value);
-            const appId = parseInt(document.getElementById('modalApplicantId').value);
-            if (!staffShortlist[posId]) staffShortlist[posId] = [];
-            if (!staffShortlist[posId].includes(appId)) staffShortlist[posId].push(appId);
-            const fd = new FormData(); fd.append('position_id', posId); fd.append('applicant_id', appId);
-            fetch('/staff/shortlist/add', { method:'POST', body: fd }).then(res => { if (res.ok) { closeModal(); updateShortlistDisplay(posId); } }).catch(console.error);
-        });
+        function filterPositions() { 
+            const q = document.getElementById('positionSearch').value.toLowerCase(); 
+            document.querySelectorAll('.position-item').forEach(item => { 
+                const text = item.querySelector('div').textContent.toLowerCase(); 
+                item.style.display = text.includes(q) ? 'block' : 'none'; 
+            }); 
+        }
+        
+        function filterShortlist() { 
+            const q = document.getElementById('shortlistSearch').value.toLowerCase(); 
+            document.querySelectorAll('.shortlist-item').forEach(item => { 
+                item.style.display = item.textContent.toLowerCase().includes(q) ? 'flex' : 'none'; 
+            }); 
+        }
+        
+        function logout() { 
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
 
-        function filterPositions(){ const q=document.getElementById('positionSearch').value.toLowerCase(); document.querySelectorAll('.position-item').forEach(it=>{ const n=it.querySelector('div').textContent.toLowerCase(); it.style.display = n.includes(q) ? 'block' : 'none'; }); }
-        function filterShortlist(){ const q=document.getElementById('shortlistSearch').value.toLowerCase(); document.querySelectorAll('.shortlist-item').forEach(it=>{ it.style.display = it.textContent.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
-        function logout(){ if(confirm('Are you sure you want to logout?')) window.location='/logout'; }
-        window.onclick = function(e){ const m=document.getElementById('addModal'); if(e.target===m) closeModal(); }
+        // Initialize with first position selected if available
+        {% if positions and positions|length > 0 %}
+            setTimeout(() => {
+                const firstPosition = document.querySelector('.position-item');
+                if (firstPosition) {
+                    selectPosition(firstPosition, allPositions[0]);
+                }
+            }, 100);
+        {% endif %}
     </script>
 </body>
 </html>
