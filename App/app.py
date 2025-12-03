@@ -359,347 +359,60 @@ def main():
                 session['user_type'] = user['type']
                 session.permanent = True
                 
-                return redirect('/dashboard')
+                # Redirect to appropriate dashboard based on user type
+                if user['type'] == 'student':
+                    return redirect('/student-dashboard')
+                elif user['type'] == 'employer':
+                    return redirect('/employerdashboard')
+                else:
+                    return redirect('/StaffDashboard')
                 
             except Exception as e:
                 return f"Error: {str(e)}", 500
         
-        # ========== STUDENT API ==========
+        # ========== API ROUTES DISABLED FOR UI-ONLY MODE ==========
+        # All /api/* endpoints below have been redirected to server-rendered pages
         
         @app.route('/api/user', methods=['GET'])
         def get_user_info():
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            current_user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id:
-                    current_user = user_data
-                    break
-            
-            if not current_user:
-                return jsonify({'error': 'User not found'}), 404
-            
-            return jsonify({
-                'success': True,
-                'user': {
-                    'id': current_user['id'],
-                    'name': current_user['name'],
-                    'username': current_user['username'],
-                    'email': current_user['email'],
-                    'type': current_user['type']
-                }
-            })
+            return redirect('/student-dashboard')
         
         @app.route('/api/applications', methods=['GET'])
         def get_user_applications():
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user_apps = [app for app in applications if app['user_id'] == user_id]
-            simplified = []
-            for app in user_apps:
-                simplified.append({
-                    'id': app['id'],
-                    'positionName': app['position_name'],
-                    'company': app['company'],
-                    'description': app['description'],
-                    'status': app['status'],
-                    'appliedDate': app['applied_date'],
-                    'lastUpdated': app['last_updated']
-                })
-            
-            return jsonify({
-                'success': True,
-                'applications': simplified
-            })
+            return redirect('/student-dashboard')
         
         @app.route('/api/applications/<int:application_id>/response', methods=['GET'])
         def get_application_response(application_id):
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            application = None
-            for app in applications:
-                if app['id'] == application_id and app['user_id'] == user_id:
-                    application = app
-                    break
-            
-            if not application:
-                return jsonify({'error': 'Application not found'}), 404
-            
-            return jsonify({
-                'success': True,
-                'application': {
-                    'id': application['id'],
-                    'positionName': application['position_name'],
-                    'company': application['company'],
-                    'status': application['status'],
-                    'details': application['details']
-                }
-            })
-        
-        # ========== EMPLOYER API ==========
+            return redirect('/student-dashboard')
         
         @app.route('/api/employer/user', methods=['GET'])
         def get_employer_user_info():
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            current_user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    current_user = user_data
-                    break
-            
-            if not current_user:
-                return jsonify({'error': 'User not found or not employer'}), 404
-            
-            return jsonify({
-                'success': True,
-                'user': {
-                    'id': current_user['id'],
-                    'name': current_user['name'],
-                    'username': current_user['username'],
-                    'email': current_user['email'],
-                    'type': current_user['type']
-                }
-            })
+            return redirect('/employerdashboard')
         
-        @app.route('/api/employer/positions', methods=['GET'])
+        @app.route('/api/employer/positions', methods=['GET', 'POST'])
         def get_employer_positions():
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            user_positions = [pos for pos in employer_positions if pos['employer_id'] == user_id]
-            return jsonify({'success': True, 'positions': user_positions})
+            return redirect('/employerdashboard')
         
-        @app.route('/api/employer/positions', methods=['POST'])
-        def create_employer_position():
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            data = request.get_json()
-            if not data.get('name') or not data.get('description'):
-                return jsonify({'error': 'Name and description required'}), 400
-            
-            new_id = max([p['id'] for p in employer_positions], default=0) + 1
-            new_position = {
-                'id': new_id,
-                'employer_id': user_id,
-                'name': data.get('name'),
-                'description': data.get('description'),
-                'capacity': data.get('capacity', 1),
-                'department': data.get('department', 'engineering'),
-                'endDate': data.get('endDate'),
-                'filled': 0,
-                'created_date': datetime.now().strftime('%Y-%m-%d'),
-                'status': 'active'
-            }
-            
-            employer_positions.append(new_position)
-            return jsonify({'success': True, 'position': new_position})
-        
-        @app.route('/api/employer/positions/<int:position_id>', methods=['PUT'])
-        def update_employer_position(position_id):
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            data = request.get_json()
-            position_index = None
-            
-            for i, pos in enumerate(employer_positions):
-                if pos['id'] == position_id and pos['employer_id'] == user_id:
-                    position_index = i
-                    break
-            
-            if position_index is None:
-                return jsonify({'error': 'Position not found'}), 404
-            
-            employer_positions[position_index].update({
-                'name': data.get('name', employer_positions[position_index]['name']),
-                'description': data.get('description', employer_positions[position_index]['description']),
-                'capacity': data.get('capacity', employer_positions[position_index]['capacity']),
-                'department': data.get('department', employer_positions[position_index]['department']),
-                'endDate': data.get('endDate', employer_positions[position_index]['endDate'])
-            })
-            
-            return jsonify({'success': True, 'position': employer_positions[position_index]})
-        
-        @app.route('/api/employer/positions/<int:position_id>', methods=['DELETE'])
-        def delete_employer_position(position_id):
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            position_index = None
-            for i, pos in enumerate(employer_positions):
-                if pos['id'] == position_id and pos['employer_id'] == user_id:
-                    position_index = i
-                    break
-            
-            if position_index is None:
-                return jsonify({'error': 'Position not found'}), 404
-            
-            deleted = employer_positions.pop(position_index)
-            return jsonify({'success': True, 'message': 'Position deleted', 'position': deleted})
+        @app.route('/api/employer/positions/<int:position_id>', methods=['PUT', 'DELETE'])
+        def update_delete_employer_position(position_id):
+            return redirect('/employerdashboard')
         
         @app.route('/api/employer/applicants', methods=['GET'])
         def get_employer_applicants():
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            position_ids = [pos['id'] for pos in employer_positions if pos['employer_id'] == user_id]
-            user_apps = [app for app in employer_applicants if app['position_id'] in position_ids]
-            return jsonify({'success': True, 'applicants': user_apps})
+            return redirect('/employerdashboard')
         
         @app.route('/api/employer/applicants/<int:applicant_id>', methods=['GET'])
         def get_employer_applicant(applicant_id):
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            applicant = None
-            for app in employer_applicants:
-                if app['id'] == applicant_id:
-                    position = next((p for p in employer_positions if p['id'] == app['position_id'] and p['employer_id'] == user_id), None)
-                    if position:
-                        applicant = app
-                    break
-            
-            if not applicant:
-                return jsonify({'error': 'Applicant not found'}), 404
-            
-            return jsonify({'success': True, 'applicant': applicant})
+            return redirect('/employerdashboard')
         
         @app.route('/api/employer/applicants/<int:applicant_id>/status', methods=['PUT'])
         def update_applicant_status(applicant_id):
-            user_id = session.get('user_id')
-            if not user_id:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            user = None
-            for username, user_data in users.items():
-                if user_data['id'] == user_id and user_data['type'] == 'employer':
-                    user = user_data
-                    break
-            
-            if not user:
-                return jsonify({'error': 'User is not employer'}), 403
-            
-            data = request.get_json()
-            new_status = data.get('status')
-            if not new_status:
-                return jsonify({'error': 'Status required'}), 400
-            
-            applicant_index = None
-            for i, app in enumerate(employer_applicants):
-                if app['id'] == applicant_id:
-                    position = next((p for p in employer_positions if p['id'] == app['position_id'] and p['employer_id'] == user_id), None)
-                    if position:
-                        applicant_index = i
-                    break
-            
-            if applicant_index is None:
-                return jsonify({'error': 'Applicant not found'}), 404
-            
-            employer_applicants[applicant_index]['status'] = new_status
-            return jsonify({'success': True, 'applicant': employer_applicants[applicant_index]})
-        
-        # ========== UTILITY ROUTES ==========
+            return redirect('/employerdashboard')
         
         @app.route('/api/auth/login', methods=['POST'])
         def api_login():
-            try:
-                data = request.get_json()
-                username = data.get('username')
-                password = data.get('password')
-                
-                if username not in users or users[username]['password'] != password:
-                    return jsonify({'error': 'Invalid credentials'}), 401
-                
-                user = users[username]
-                session['user_id'] = user['id']
-                session['username'] = user['username']
-                session['user_type'] = user['type']
-                session.permanent = True
-                
-                access_token = create_access_token(identity={
-                    'id': user['id'],
-                    'username': user['username'],
-                    'name': user['name'],
-                    'type': user['type']
-                })
-                
-                return jsonify({
-                    'success': True,
-                    'token': access_token,
-                    'user': user
-                })
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
+            # Legacy API login removed for UI-only mode; use /simple_login form instead
+            return redirect('/login')
         
         @app.route('/health')
         def health_check():

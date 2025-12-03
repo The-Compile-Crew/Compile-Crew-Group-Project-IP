@@ -1,16 +1,7 @@
-from flask import Blueprint, render_template, jsonify, request, send_from_directory, flash, redirect, url_for
-from flask_jwt_extended import jwt_required, current_user as jwt_current_user
-from flask_jwt_extended import jwt_required, current_user
-from App.controllers import ( add_student_to_shortlist, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position)
-
-
-from.index import index_views
-
+from flask import Blueprint, render_template, request, send_from_directory, flash, redirect, url_for, session
 from App.controllers import (
     create_user,
-    get_all_users,
-    get_all_users_json,
-    jwt_required
+    get_all_users
 )
 
 user_views = Blueprint('user_views', __name__, template_folder='../templates')
@@ -29,25 +20,14 @@ def create_user_action():
 
 @user_views.route('/api/users', methods=['GET'])
 def get_users_action():
-    users = get_all_users_json()
-    return jsonify(users)
+    # API endpoints removed for UI-only requirement; redirect to server-rendered users page
+    return redirect(url_for('user_views.get_user_page'))
 
 @user_views.route('/api/users', methods=['POST'])
 def create_user_endpoint():
-    data = request.json
-    user = create_user(data['username'], data['password'])
-    return jsonify({'message': f"user {user.username} created with id {user.id}"})
+    # API endpoints removed; create user via server-rendered form
+    return redirect(url_for('user_views.get_user_page'))
 
 @user_views.route('/static/users', methods=['GET'])
 def static_user_page():
   return send_from_directory('static', 'static-user.html')
-
-
-@user_views.route('/api/me', methods=['GET'])
-@jwt_required()
-def get_me():
-    return jsonify({
-        "id": current_user.id,
-        "username": current_user.username,
-        "role": current_user.role
-    }), 200

@@ -1,44 +1,45 @@
-from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash
-from flask_jwt_extended import jwt_required, current_user
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session
 from App.controllers import (
     open_position,
-    get_positions_by_employer,
-    get_all_positions_json,
-    get_positions_by_employer_json
+    get_positions_by_employer
 )
 from App.database import db
 
 position_views = Blueprint('position_views', __name__, template_folder='../templates')
 
-# Get all positions (API)
+# Delete position (UI)
+@position_views.route('/positions/<int:id>/delete', methods=['POST'])
+def delete_position(id):
+    from App.models.position import Position
+    pos = Position.query.get_or_404(id)
+    if session.get('user_type') != 'employer':
+        flash("Unauthorized user", "error")
+        return redirect(url_for('auth_views.employer_dashboard'))
+    db.session.delete(pos)
+    db.session.commit()
+    flash("Position deleted successfully!", "success")
+    return redirect(url_for('auth_views.employer_dashboard'))
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session
+from App.controllers import (
+    open_position,
+    get_positions_by_employer
+)
+from App.database import db
+
+position_views = Blueprint('position_views', __name__, template_folder='../templates')
+
+# API endpoints removed for UI-only requirement; use server-rendered /positions views instead
 @position_views.route('/api/positions/all', methods=['GET'])
 def get_all_positions_api():
-    position_list = get_all_positions_json()
-    return jsonify(position_list), 200
+    return redirect(url_for('position_views.list_positions_page'))
 
-# Create a position (API)
 @position_views.route('/api/positions/create', methods=['POST'])
-@jwt_required()
 def create_position_api():
-    if current_user.role != 'employer':
-        return jsonify({"message": "Unauthorized user"}), 403
-    
-    data = request.json
-    position = open_position(title=data['title'], user_id=current_user.id, number_of_positions=data['number'])
-    
-    if position:
-        return jsonify(position.toJSON()), 201
-    else:
-        return jsonify({"error": "Failed to create position"}), 400
+    return redirect(url_for('position_views.list_positions_page'))
 
-# Get positions for a given employer (API)
 @position_views.route('/api/employer/positions', methods=['GET'])
-@jwt_required()
 def get_employer_positions_api():
-    if current_user.role != 'employer':
-        return jsonify({"message": "Unauthorized user"}), 403
-    
-    return jsonify(get_positions_by_employer_json(current_user.id)), 200
+    return redirect(url_for('position_views.list_positions_page'))
 
 # List all positions (UI) with search/filter
 @position_views.route('/positions', methods=['GET'])
@@ -60,26 +61,43 @@ def list_positions_page():
 
 # Create position form (UI)
 @position_views.route('/positions/create', methods=['GET', 'POST'])
-@jwt_required()
 def create_position_page():
-    if current_user.role != 'employer':
-        flash("Unauthorized user")
-        return redirect(url_for('position_views.list_positions_page'))
+    # session-based employer check
+    if session.get('user_type') != 'employer':
+        flash("Unauthorized user", "error")
+        return redirect('/')
 
     if request.method == 'POST':
-        title = request.form['title']
-        number = int(request.form['number'])
-        employer_id = current_user.id
+        title = request.form.get('title')
+        description = request.form.get('description')
+        capacity = request.form.get('capacity')
+        end_date = request.form.get('end_date')
 
-        pos = open_position(title, employer_id, number)
-        if pos:
-            db.session.add(pos)
-            db.session.commit()
-            flash("Position created successfully!")
-            return redirect(url_for('position_views.list_positions_page'))
-        else:
-            flash("Failed to create position")
+        if not title or not capacity:
+            flash("Missing required fields", "error")
             return redirect(url_for('position_views.create_position_page'))
+
+        user_id = session.get('user_id')
+        from App.models.employer import Employer
+        employer = Employer.query.filter_by(user_id=user_id).first()
+        if not employer:
+            flash("Employer account not found.", "error")
+            return redirect(url_for('auth_views.employer_dashboard'))
+
+        from datetime import datetime
+        end_date_obj = None
+        if end_date:
+            try:
+                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            except Exception:
+                end_date_obj = None
+
+        from App.models.position import Position
+        pos = Position(title=title, employer_id=employer.id, number=int(capacity), description=description, end_date=end_date_obj)
+        db.session.add(pos)
+        db.session.commit()
+        flash("Position created successfully!", "success")
+        return redirect(url_for('auth_views.employer_dashboard'))
 
     return render_template('positions/create.html', position=None)
 
@@ -92,20 +110,28 @@ def position_detail_page(id):
 
 # Edit position form (UI)
 @position_views.route('/positions/<int:id>/edit', methods=['GET', 'POST'])
-@jwt_required()
 def edit_position_page(id):
     from App.models.position import Position
     pos = Position.query.get_or_404(id)
 
-    if current_user.role != 'employer' or pos.employer_id != current_user.id:
-        flash("Unauthorized user")
-        return redirect(url_for('position_views.list_positions_page'))
+    # session-based access check
+    if session.get('user_type') != 'employer':
+        flash("Unauthorized user", "error")
+        return redirect(url_for('auth_views.employer_dashboard'))
 
     if request.method == 'POST':
-        pos.title = request.form['title']
-        pos.number_of_positions = int(request.form['number'])
+        pos.title = request.form.get('title', pos.title)
+        pos.description = request.form.get('description', pos.description)
+        pos.number_of_positions = int(request.form.get('capacity', pos.number_of_positions))
+        end_date = request.form.get('end_date')
+        from datetime import datetime
+        if end_date:
+            try:
+                pos.end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+            except Exception:
+                pass
         db.session.commit()
-        flash("Position updated successfully!")
-        return redirect(url_for('position_views.position_detail_page', id=pos.id))
+        flash("Position updated successfully!", "success")
+        return redirect(url_for('auth_views.employer_dashboard'))
 
     return render_template('positions/create.html', position=pos)

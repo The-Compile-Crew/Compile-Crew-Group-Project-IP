@@ -1,4 +1,4 @@
-from flask import request, jsonify, redirect
+from flask import request, jsonify, redirect, session
 from App.controllers.user import create_user
 from App.models import User
 from App.database import db
@@ -18,6 +18,14 @@ def simple_login():
         if user:
             print(f"User role: {user.role}, checking password...")
             if user.check_password(password) and user.role == user_type:
+                # store user info in the session so frontend can fetch it
+                try:
+                    session['user_id'] = user.id
+                    session['username'] = user.username
+                    session['user_type'] = user.role
+                except Exception:
+                    # if session can't be set for some reason, continue without failing
+                    pass
                 # Redirect based on user type
                 if user_type == 'student':
                     return redirect('/student-dashboard')
@@ -39,15 +47,22 @@ def simple_signup():
     username = request.form.get('username')
     password = request.form.get('password')
     user_type = request.form.get('userType')
-    
+    student_id = request.form.get('student_id')
+
     # Check if username already exists
     if User.query.filter_by(username=username).first():
         return "Username already exists", 400
-    
+
     # Create new user
-    result = create_user(username, password, user_type)
-    
-    if result:
-        return "Account created! You can now login.", 201
+    if user_type == 'student':
+        result = create_user(username, password, user_type, student_id)
     else:
-        return "Account creation failed", 400
+        result = create_user(username, password, user_type)
+
+    from flask import flash, redirect, url_for
+    if result:
+        flash("Account created! You can now login.", "success")
+        return redirect(url_for('index_views.index_page'))
+    else:
+        flash("Account creation failed", "error")
+        return redirect(url_for('index_views.index_page'))

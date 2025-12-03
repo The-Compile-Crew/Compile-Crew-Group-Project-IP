@@ -45,17 +45,31 @@
       <span class="back-text">Return to Dashboard</span>
     </div>
 
-    <form>
-      <label for="student_name">Student Name</label>
-      <input id="student_name" name="student_name" type="text" placeholder="Enter student name">
-
-      <label for="student_id">Student ID</label>
-      <input id="student_id" name="student_id" type="text" placeholder="Enter student ID">
-
+    <form method="POST" action="{{ url_for('shortlist_views.add_student_shortlist') }}">
+      <input type="hidden" name="position_id" value="{{ position.id }}">
+      <label for="student_user_id">Select Student</label>
+      <select id="student_user_id" name="student_user_id" required>
+        <option value="">Select a student...</option>
+        {% for student in students %}
+          <option value="{{ student.user_id }}" data-name="{{ student.username }}" data-studentid="{{ student.student_id }}">
+            {{ student.username }} (ID: {{ student.student_id }})
+          </option>
+        {% endfor %}
+      </select>
+      <input type="hidden" id="student_name" name="student_name">
+      <input type="hidden" id="student_id" name="student_id">
       <label for="details">Details</label>
-      <textarea id="details" name="details" rows="4" placeholder="Enter details"></textarea>
-
+      <textarea id="details" name="details" placeholder="Enter application details" required></textarea>
       <button type="submit" class="btn">Add to Shortlist</button>
+    </form>
+    <script>
+      // Auto-fill hidden fields when student is selected
+      document.getElementById('student_user_id').addEventListener('change', function() {
+        var selected = this.options[this.selectedIndex];
+        document.getElementById('student_name').value = selected.getAttribute('data-name') || '';
+        document.getElementById('student_id').value = selected.getAttribute('data-studentid') || '';
+      });
+    </script>
     </form>
   </div>
 </body>
