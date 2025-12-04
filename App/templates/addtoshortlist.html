@@ -21,9 +21,9 @@
     <a href="/dashboard" class="btn btn-secondary" style="margin-bottom:12px;">← Back to Dashboard</a>
     <form method="POST" action="/shortlist/add" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08)">
       <input type="hidden" name="position_id" value="{{ position_id }}">
-      <label for="student_id">Student ID</label>
+      <label for="student_username">Student Username</label>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <input type="text" id="student_id" name="student_id" required placeholder="Enter Student ID" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px">
+        <input type="text" id="student_username" name="student_username" required placeholder="Enter Student Username" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px">
         <button type="button" class="btn btn-info" onclick="document.getElementById('studentUsersModal').style.display='block'">Show Student Users</button>
       </div>
       <label for="details">Details</label>
@@ -38,7 +38,7 @@
         <ul style="list-style:none;padding:0;max-height:300px;overflow-y:auto;">
           {% for stud in students %}
             <li style="padding:8px 0;border-bottom:1px solid #eee;font-size:15px;">
-              <strong>{{ stud.username }}</strong> &mdash; Student ID: {{ stud.student_id }}
+              <strong>{{ stud.username }}</strong>
             </li>
           {% endfor %}
         </ul>

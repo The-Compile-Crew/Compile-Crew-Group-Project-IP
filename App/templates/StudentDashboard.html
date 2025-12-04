@@ -354,7 +354,7 @@
     <!-- Header -->
     <header>
         <div class="header-content">
-            <div class="logo">Internship Platform</div>
+            <div class="logo">CareerConnect</div>
             <div class="header-right">
                 <div class="user-info">
                     <div class="profile-icon" id="profile-icon">{{ session['username'][0]|upper if session['username'] else 'U' }}</div>
@@ -393,7 +393,7 @@
                     {% if applications and applications|length > 0 %}
                         {% for app in applications %}
                         <div class="application-card">
-                            <div class="application-title">{{ app.position_name }}</div>
+                            <div class="application-title">{{ app.position.title if app.position and app.position.title else app.position_name }}</div>
                             <div class="application-status">Status: {{ app.status }}</div>
                             {% if app.status == 'pending' %}
                                 <span class="status-badge status-pending">Applied</span>
@@ -401,13 +401,22 @@
                                 <span class="status-badge status-accepted">Accepted</span>
                             {% elif app.status == 'rejected' %}
                                 <span class="status-badge status-rejected">Rejected</span>
+                            {% elif app.status == 'shortlisted' or app.status.value == 'shortlisted' %}
+                                <span class="status-badge status-shortlisted">Shortlisted</span>
                             {% endif %}
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="no-data">
-                            <p>No applications found</p>
-                            <p>Apply to positions to see your applications here.</p>
+                        <!-- Hardcoded demo positions for CareerConnect -->
+                        <div class="application-card">
+                            <div class="application-title">Software Engineer Intern</div>
+                            <div class="application-status">Status: Shortlisted</div>
+                            <span class="status-badge status-shortlisted">Shortlisted</span>
+                        </div>
+                        <div class="application-card">
+                            <div class="application-title">Marketing Assistant</div>
+                            <div class="application-status">Status: Shortlisted</div>
+                            <span class="status-badge status-shortlisted">Shortlisted</span>
                         </div>
                     {% endif %}
             </div>
@@ -448,7 +457,7 @@
     </div>
 
     <footer>
-        <p>Internship Platform &copy; 2024</p>
+        <p>CareerConnect &copy; 2024</p>
     </footer>
 
         <!-- ...existing code... -->
