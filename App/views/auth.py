@@ -89,8 +89,8 @@ def employer_dashboard():
 @auth_views.route('/StaffDashboard')
 def staff_dashboard():
     username = session.get('username')
-    from App.models.student import Student
     from App.models.position import Position
+    from App.models import Student
     students = Student.query.all()
     positions = Position.query.filter_by(status='open').all()
     return render_template('StaffDashboard.html', username=username, students=students, positions=positions)
