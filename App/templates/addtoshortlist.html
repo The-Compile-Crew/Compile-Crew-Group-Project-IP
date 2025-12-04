@@ -1,13 +1,26 @@
-{% extends 'layout.html' %}
-
-{% block title %}Add to Shortlist{% endblock %}
-{% block page %}Add to Shortlist{% endblock %}
-
-{% block content %}
-  <div style="margin-top:20px; max-width:800px">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add to Shortlist</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f7fa; color:#333; margin:0; }
+    .btn { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; text-decoration:none; display:inline-block; font-size:14px; }
+    .btn-primary { background:#9b59b6; color:#fff; }
+    .btn-primary:hover { background:#8e44ad; }
+    .btn-info { background:#3498db; color:#fff; }
+    .btn-secondary { background:#7f8c8d; color:#fff; }
+    form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.08); }
+    label { font-weight:600; margin-bottom:4px; display:block; }
+    input, textarea { margin-bottom:10px; }
+  </style>
+</head>
+<body>
+  <div style="margin-top:20px; max-width:800px; margin-left:auto; margin-right:auto;">
     <a href="/dashboard" class="btn btn-secondary" style="margin-bottom:12px;">← Back to Dashboard</a>
     <form method="POST" action="/shortlist/add" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08)">
-      <input type="hidden" name="position_id" value="{{ position_id or 1 }}">
+      <input type="hidden" name="position_id" value="{{ position_id }}">
       <label for="student_id">Student ID</label>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
         <input type="text" id="student_id" name="student_id" required placeholder="Enter Student ID" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px">
@@ -32,4 +45,5 @@
       </div>
     </div>
   </div>
-{% endblock %}
+</body>
+</html>
