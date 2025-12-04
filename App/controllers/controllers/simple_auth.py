@@ -47,7 +47,14 @@ def simple_signup():
     username = request.form.get('username')
     password = request.form.get('password')
     user_type = request.form.get('userType')
-    student_id = request.form.get('student_id')
+    student_id = request.form.get('student_id', None)
+
+    # Input validation
+    if not username or not password or not user_type:
+        return "Missing required fields", 400
+
+    if user_type == 'student' and not student_id:
+        return "Student ID required for student accounts", 400
 
     # Check if username already exists
     if User.query.filter_by(username=username).first():
@@ -59,10 +66,10 @@ def simple_signup():
     else:
         result = create_user(username, password, user_type)
 
-    from flask import flash, redirect, url_for
+    from flask import flash, redirect
     if result:
         flash("Account created! You can now login.", "success")
-        return redirect(url_for('index_views.index_page'))
+        return redirect('/')
     else:
         flash("Account creation failed", "error")
-        return redirect(url_for('index_views.index_page'))
+        return redirect('/')
