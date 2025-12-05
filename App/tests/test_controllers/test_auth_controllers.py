@@ -21,7 +21,7 @@ class AuthControllerUnitTests(unittest.TestCase):
     
     def test_user_authentication_valid_password(self):
         """Test that user can authenticate with valid credentials"""
-        user = create_user("john_student", "password123", "student")
+        user = create_user("john_student", "password123", "student", student_id="816000200")
         self.assertIsNotNone(user)
         
         # Check password manually
@@ -31,9 +31,11 @@ class AuthControllerUnitTests(unittest.TestCase):
     
     def test_user_authentication_invalid_password(self):
         """Test that authentication fails with wrong password"""
-        user = create_user("test_user", "correctpass", "student")
+        user = create_user("test_user", "correctpass", "student", student_id="816000201")
+        self.assertIsNotNone(user)
         
         found_user = User.query.filter_by(username="test_user").first()
+        self.assertIsNotNone(found_user)
         self.assertFalse(found_user.check_password("wrongpass"))
     
     def test_user_authentication_nonexistent_user(self):
@@ -43,9 +45,13 @@ class AuthControllerUnitTests(unittest.TestCase):
     
     def test_authentication_different_user_types(self):
         """Test that all user types can be found"""
-        student = create_user("student1", "pass123", "student")
+        student = create_user("student1", "pass123", "student", student_id="816000202")
         employer = create_user("employer1", "pass123", "employer")
         staff = create_user("staff1", "pass123", "staff")
+        
+        self.assertIsNotNone(student)
+        self.assertIsNotNone(employer)
+        self.assertIsNotNone(staff)
         
         found_student = User.query.filter_by(username="student1").first()
         found_employer = User.query.filter_by(username="employer1").first()

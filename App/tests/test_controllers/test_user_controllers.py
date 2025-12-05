@@ -51,7 +51,7 @@ class UserControllerUnitTests(unittest.TestCase):
     
     def test_create_user_with_duplicate_username(self):
         """Test that duplicate usernames are handled"""
-        user1 = create_user("duplicate_user", "password123", "student")
+        user1 = create_user("duplicate_user", "password123", "student", student_id="816000099")
         self.assertIsNotNone(user1)
         
         # Attempting to create another user with same username should be handled
