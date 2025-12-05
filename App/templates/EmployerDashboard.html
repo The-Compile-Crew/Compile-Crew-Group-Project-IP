@@ -460,7 +460,7 @@
 <body>
     <header>
         <div class="header-content">
-            <div class="logo">Applicant Tracking System</div>
+            <div class="logo">CareerConnect</div>
             <div class="header-right" id="headerRight">
                 <div class="user-info">
                     <div class="profile-icon" id="profile-icon">{{ session['username'][0]|upper if session['username'] else 'U' }}</div>
@@ -490,21 +490,38 @@
                     {% if positions and positions|length > 0 %}
                         {% for position in positions %}
                             <div class="position-card">
-                                <div class="position-name">{{ position.name }}</div>
+                                <div class="position-name">{{ position.title }}</div>
                                 <div class="position-description">{{ position.description or '' }}</div>
                                 <div class="position-meta">
                                     <div class="position-capacity">
                                         <span>Capacity</span>
-                                        <span>{{ position.capacity or 0 }}</span>
+                                        <span>{{ position.number_of_positions or 0 }}</span>
                                     </div>
                                 </div>
                                 <a href="/positions/{{ position.id }}/edit" class="edit-position-btn">View / Edit</a>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="no-data">
-                            <p>No positions found</p>
-                            <p>Click "Create Position" to add a new position</p>
+                        <!-- Hardcoded demo positions for CareerConnect -->
+                        <div class="position-card">
+                            <div class="position-name">Software Engineer Intern</div>
+                            <div class="position-description">Work on real projects.</div>
+                            <div class="position-meta">
+                                <div class="position-capacity">
+                                    <span>Capacity</span>
+                                    <span>2</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="position-card">
+                            <div class="position-name">Marketing Assistant</div>
+                            <div class="position-description">Assist with campaigns.</div>
+                            <div class="position-meta">
+                                <div class="position-capacity">
+                                    <span>Capacity</span>
+                                    <span>1</span>
+                                </div>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
@@ -532,16 +549,24 @@
                             <div class="student-card">
                                 <div class="student-name">{{ applicant.name }}</div>
                                 <div class="student-status" style="background-color: #3498db; color: white;">{{ applicant.status|capitalize }}</div>
-                                <p><strong>Position:</strong> {{ applicant.position_name }}</p>
-                                <p><strong>Applied:</strong> {{ applicant.applied_date }}</p>
+                                <p><strong>Position:</strong> {{ applicant.position_name if applicant.position_name else applicant.position.title }}</p>
                                 <button class="review-btn" onclick="window.location.href='/review'">Review</button>
                             </div>
                         {% endfor %}
                     {% else %}
-                    <div class="no-data">
-                        <p>No applicants found</p>
-                        <p>Applicants will appear here when they apply to your positions</p>
-                    </div>
+                        <!-- Hardcoded demo applicants for CareerConnect -->
+                        <div class="student-card">
+                            <div class="student-name">demo_student1</div>
+                            <div class="student-status" style="background-color: #3498db; color: white;">Shortlisted</div>
+                            <p><strong>Position:</strong> Software Engineer Intern</p>
+                            <button class="review-btn" onclick="window.location.href='/review'">Review</button>
+                        </div>
+                        <div class="student-card">
+                            <div class="student-name">demo_student2</div>
+                            <div class="student-status" style="background-color: #3498db; color: white;">Shortlisted</div>
+                            <p><strong>Position:</strong> Marketing Assistant</p>
+                            <button class="review-btn" onclick="window.location.href='/review'">Review</button>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -551,7 +576,7 @@
     <!-- Position creation and editing moved to dedicated server pages (/positions/create, /positions/<id>/edit) -->
     
     <footer>
-        <p>Applicant Tracking System &copy; 2024</p>
+        <p>CareerConnect &copy; 2024</p>
     </footer>
 
     <script>

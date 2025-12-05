@@ -47,6 +47,27 @@ def get_all_users_json():
     users = [user.get_json() for user in users]
     return users
 
+
+def get_all_students_with_details():
+    """Get all students with their username and student_id"""
+    students = db.session.query(
+        User.username,
+        User.id.label('user_id'),
+        Student.student_id,
+        Student.id.label('student_table_id')
+    ).join(Student, User.id == Student.user_id)
+    students = students.filter(User.role == 'student').all()
+
+    # Convert to list of dictionaries for easier template access
+    student_list = []
+    for student in students:
+        student_list.append({
+            'username': student.username,
+            'student_id': student.student_id,
+            'user_id': student.user_id
+        })
+    return student_list
+
 def update_user(id, username):
     user = get_user(id)
     if user:

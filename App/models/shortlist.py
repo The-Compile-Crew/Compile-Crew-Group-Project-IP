@@ -37,6 +37,7 @@ class Shortlist(db.Model):
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
     status = db.Column(Enum(DecisionStatus, native_enum=False), nullable=False, default=DecisionStatus.applied)
     state = db.Column(db.String, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
     student = db.relationship('Student', backref=db.backref('shortlist', lazy=True))
     position = db.relationship('Position', backref=db.backref('shortlist', lazy=True))
     staff = db.relationship('Staff', backref=db.backref('shortlist', lazy=True))
@@ -44,7 +45,7 @@ class Shortlist(db.Model):
      
     
 
-    def __init__(self, student_id, position_id, staff_id, title, state, student_name, student_identifier, details):
+    def __init__(self, student_id, position_id, staff_id, title, state, student_name, student_identifier, details, created_at=None):
         self.student_id = student_id
         self.position_id = position_id
         self.status = DecisionStatus.applied
@@ -55,6 +56,8 @@ class Shortlist(db.Model):
         self.student_name = student_name
         self.student_identifier = student_identifier
         self.details = details
+        if created_at:
+            self.created_at = created_at
 
 #new method to set state based on status
     def set_state(self, state: ShortlistState):

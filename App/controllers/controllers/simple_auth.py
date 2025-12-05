@@ -7,7 +7,7 @@ def simple_login():
     try:
         username = request.form.get('username')
         password = request.form.get('password')
-        user_type = request.form.get('userType')
+        user_type = request.form.get('user_type')
         
         print(f"Login attempt: username={username}, user_type={user_type}")
         
@@ -44,10 +44,12 @@ def simple_login():
         return f"Server error: {str(e)}", 500
 
 def simple_signup():
+
     username = request.form.get('username')
     password = request.form.get('password')
-    user_type = request.form.get('userType')
-    student_id = request.form.get('student_id', None)
+    user_type = request.form.get('user_type')
+    student_id = request.form.get('student_id')
+    print(f"Signup received: username={username}, user_type={user_type}, student_id={student_id}")
 
     # Input validation
     if not username or not password or not user_type:
@@ -63,6 +65,7 @@ def simple_signup():
     # Create new user
     if user_type == 'student':
         result = create_user(username, password, user_type, student_id)
+        print(f"Student created with student_id={student_id}")
     else:
         result = create_user(username, password, user_type)
 
