@@ -126,11 +126,30 @@ def employer_dashboard():
 @auth_views.route('/StaffDashboard')
 def staff_dashboard():
     username = session.get('username')
+    user_id = session.get('user_id')
+    
+    # Require authentication
+    if not user_id or not username:
+        return redirect('/')
+    
+    from App.models.student import Student
     from App.models.position import Position
-    from App.models import Student
+    from App.models.shortlist import Shortlist
     students = Student.query.all()
     positions = Position.query.filter_by(status='open').all()
-    return render_template('StaffDashboard.html', username=username, students=students, positions=positions)
+    
+    # Serialize positions to JSON-compatible format
+    positions_json = [p.toJSON() for p in positions]
+    
+    # Get all shortlist entries (applicants)
+    applicants = Shortlist.query.all()
+    applicants_json = [a.toJSON() for a in applicants]
+    
+    return render_template('StaffDashboard.html', 
+                         username=username, 
+                         students=students, 
+                         positions=positions_json,
+                         applicants=applicants_json)
 
 
 @auth_views.route('/login', methods=['POST'])
