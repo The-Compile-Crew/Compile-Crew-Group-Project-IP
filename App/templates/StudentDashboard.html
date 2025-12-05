@@ -354,7 +354,7 @@
     <!-- Header -->
     <header>
         <div class="header-content">
-            <div class="logo">Internship Platform</div>
+            <div class="logo">CareerConnect</div>
             <div class="header-right">
                 <div class="user-info">
                     <div class="profile-icon" id="profile-icon">{{ session['username'][0]|upper if session['username'] else 'U' }}</div>
@@ -392,168 +392,30 @@
             <div class="widget-grid" id="positions-container">
                     {% if applications and applications|length > 0 %}
                         {% for app in applications %}
-                        <div class="widget">
-                            <div class="position-name">
-                                {% if app.position %}
-                                    {{ app.position.name }}
-                                {% elif app.position_name %}
-                                    {{ app.position_name }}
-                                {% elif app['position_name'] %}
-                                    {{ app['position_name'] }}
-                                {% else %}
-                                    Unknown Position
-                                {% endif %}
-                            </div>
-                            <div class="position-description">
-                                {% if app.position %}
-                                    {{ app.position.description }}
-                                {% elif app.description %}
-                                    {{ app.description }}
-                                {% elif app['description'] %}
-                                    {{ app['description'] }}
-                                {% else %}
-                                    
-                                {% endif %}
-                            </div>
-                            <div class="position-status">
-                                {% if app.status.value is defined %}
-                                    {% set status = app.status.value %}
-                                {% elif app.status %}
-                                    {% set status = app.status %}
-                                {% elif app['status'] %}
-                                    {% set status = app['status'] %}
-                                {% else %}
-                                    {% set status = 'unknown' %}
-                                {% endif %}
-                                
-                                {% if status == 'applied' %}
-                                    <span class="status-badge" style="background-color: #3498db;">Applied</span>
-                                    <p style="margin-top: 10px; color: #555; font-size: 14px;">Your application has been submitted and is under review.</p>
-                                {% elif status == 'shortlisted' %}
-                                    <span class="status-badge" style="background-color: #f39c12;">Shortlisted</span>
-                                    <p style="margin-top: 10px; color: #555; font-size: 14px;">Congratulations! You have been shortlisted for this position.</p>
-                                {% elif status == 'accepted' %}
-                                    <span class="status-badge" style="background-color: #95a5a6;">Decision Made</span>
-                                    {% set pos_name = app.position.name if app.position else (app.position_name if app.position_name else app['position_name']) %}
-                                    {% set pos_id = app.position.id if app.position else (app.position_id if app.position_id is defined else app['id']) %}
-                                    <button class="view-response-btn" onclick="viewResponse('{{ pos_name }}', 'Accepted', '{{ pos_id }}')">View Employer's Response</button>
-                                {% elif status == 'rejected' %}
-                                    <span class="status-badge" style="background-color: #95a5a6;">Decision Made</span>
-                                    {% set pos_name = app.position.name if app.position else (app.position_name if app.position_name else app['position_name']) %}
-                                    {% set pos_id = app.position.id if app.position else (app.position_id if app.position_id is defined else app['id']) %}
-                                    <button class="view-response-btn" onclick="viewResponse('{{ pos_name }}', 'Rejected', '{{ pos_id }}')">View Employer's Response</button>
-                                {% else %}
-                                    <span class="status-badge" style="background-color: #95a5a6;">{{ status }}</span>
-                                    <p style="margin-top: 10px; color: #555; font-size: 14px;">Status: {{ status }}</p>
-                                {% endif %}
-                            </div>
+                        <div class="application-card">
+                            <div class="application-title">{{ app.position.title if app.position and app.position.title else app.position_name }}</div>
+                            <div class="application-status">Status: {{ app.status }}</div>
+                            {% if app.status == 'pending' %}
+                                <span class="status-badge status-pending">Applied</span>
+                            {% elif app.status == 'accepted' %}
+                                <span class="status-badge status-accepted">Accepted</span>
+                            {% elif app.status == 'rejected' %}
+                                <span class="status-badge status-rejected">Rejected</span>
+                            {% elif app.status == 'shortlisted' or app.status.value == 'shortlisted' %}
+                                <span class="status-badge status-shortlisted">Shortlisted</span>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="no-results">
-                            <p>No applications found</p>
-                            <p>Applications will appear here when positions are available.</p>
+                        <!-- Hardcoded demo positions for CareerConnect -->
+                        <div class="application-card">
+                            <div class="application-title">Software Engineer Intern</div>
+                            <div class="application-status">Status: Shortlisted</div>
+                            <span class="status-badge status-shortlisted">Shortlisted</span>
+                        </div>
+                        <div class="application-card">
+                            <div class="application-title">Marketing Assistant</div>
+                            <div class="application-status">Status: Shortlisted</div>
+                            <span class="status-badge status-shortlisted">Shortlisted</span>
                         </div>
                     {% endif %}
-            </div>
-            
-            <div id="no-results" class="no-results" style="display: none;">
-                No positions found matching your search criteria.
-            </div>
-        </div>
-    </div>
-
-    <!-- Response Details Modal -->
-    <div id="response-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Application Response</div>
-                <button class="close-modal" id="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <!-- Loading indicator for modal -->
-                <div class="loading" id="modal-loading">
-                    <div class="spinner"></div>
-                    <p>Loading response details...</p>
-                </div>
-                
-                <div class="response-details" id="modal-response-details" style="display: none;">
-                    <p><strong>Position:</strong> <span id="modal-position-name"></span></p>
-                    <p><strong>Company:</strong> <span id="modal-company"></span></p>
-                    <p><strong>Status:</strong> <span id="modal-status"></span></p>
-                    <div id="modal-details">
-                        <!-- Dynamic content will be inserted here -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-close" id="modal-close-btn">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>Internship Platform &copy; 2024</p>
-    </footer>
-
-    <script>
-        // Show/hide modal functions
-        function viewResponse(positionName, decision, positionId) {
-            const modal = document.getElementById('response-modal');
-            const modalPositionName = document.getElementById('modal-position-name');
-            const modalStatus = document.getElementById('modal-status');
-            const modalDetails = document.getElementById('modal-details');
-            const responseDetails = document.getElementById('modal-response-details');
-            const modalLoading = document.getElementById('modal-loading');
-            
-            // Show modal
-            modal.style.display = 'flex';
-            
-            // Show loading
-            modalLoading.style.display = 'block';
-            responseDetails.style.display = 'none';
-            
-            // Set basic details
-            modalPositionName.textContent = positionName;
-            
-            // Simulate loading delay and then show response
-            setTimeout(function() {
-                modalLoading.style.display = 'none';
-                responseDetails.style.display = 'block';
-                
-                if (decision === 'Accepted') {
-                    modalStatus.innerHTML = '<span class="status-badge status-accepted">Accepted</span>';
-                    modalDetails.innerHTML = '<p><strong>Decision:</strong> Congratulations! Your application has been accepted.</p><p><strong>Next Steps:</strong> The employer will contact you soon with further details about your internship.</p>';
-                } else if (decision === 'Rejected') {
-                    modalStatus.innerHTML = '<span class="status-badge status-rejected">Rejected</span>';
-                    modalDetails.innerHTML = '<p><strong>Decision:</strong> Unfortunately, your application was not selected for this position.</p><p><strong>Feedback:</strong> We encourage you to apply for other positions and continue developing your skills.</p>';
-                }
-            }, 500);
-        }
-        
-        // Close modal handlers
-        document.getElementById('close-modal').addEventListener('click', function() {
-            document.getElementById('response-modal').style.display = 'none';
-        });
-        
-        document.getElementById('modal-close-btn').addEventListener('click', function() {
-            document.getElementById('response-modal').style.display = 'none';
-        });
-        
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('response-modal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-        
-        // Logout confirmation
-        document.getElementById('logout-btn').addEventListener('click', function(e) {
-            if (!confirm('Are you sure you want to logout?')) {
-                e.preventDefault();
-            }
-        });
-    </script>
-</body>
-</html>
