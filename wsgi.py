@@ -1,5 +1,6 @@
 import click, sys
 from flask.cli import with_appcontext, AppGroup
+import pytest
 
 from App.database import db, get_migrate
 from App.models import User

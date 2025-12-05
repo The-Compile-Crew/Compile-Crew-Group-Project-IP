@@ -40,28 +40,21 @@ def student_dashboard():
     from App.models.shortlist import Shortlist, DecisionStatus
     from App.models.student import Student
     student = Student.query.filter_by(user_id=user_id).first()
-    # Get all open positions
     from App.models.position import PositionStatus
-    # Always use PositionStatus.open for filtering
     open_positions = Position.query.filter_by(status=PositionStatus.open).all()
     open_position_ids = {pos.id for pos in open_positions}
-    # Get all shortlist entries for this student for open positions only
     shortlist_entries = Shortlist.query.filter(Shortlist.student_id==student.id, Shortlist.position_id.in_(open_position_ids)).all() if student else []
-
-    # Build a dict to ensure one application per position (prefer shortlist entry)
     applications_dict = {}
     for entry in shortlist_entries:
-        # Ensure status is always an enum
         if isinstance(entry.status, str):
             try:
                 entry.status = DecisionStatus(entry.status)
             except Exception:
                 pass
+        entry.position = Position.query.get(entry.position_id)
         applications_dict[entry.position_id] = entry
-
     for pos in open_positions:
         if pos.id not in applications_dict:
-            # Create a mock application object for 'applied' state
             class MockApp:
                 pass
             mock = MockApp()
@@ -69,8 +62,21 @@ def student_dashboard():
             mock.status = DecisionStatus.applied
             mock.student_id = student.id if student else None
             applications_dict[pos.id] = mock
-
-    applications = list(applications_dict.values())
+    # DEMO: If no applications, add demo data
+    if not applications_dict:
+        class DemoApp:
+            pass
+        demo1 = DemoApp()
+        demo1.position = type('DemoPosition', (), {'title': 'Software Engineer Intern', 'description': 'Work on real projects.'})
+        demo1.status = DecisionStatus.shortlisted
+        demo1.student_id = 1
+        demo2 = DemoApp()
+        demo2.position = type('DemoPosition', (), {'title': 'Marketing Assistant', 'description': 'Assist with campaigns.'})
+        demo2.status = DecisionStatus.shortlisted
+        demo2.student_id = 2
+        applications = [demo1, demo2]
+    else:
+        applications = list(applications_dict.values())
     return render_template('StudentDashboard.html', username=username, applications=applications)
 
 @auth_views.route('/employerdashboard')
@@ -80,11 +86,42 @@ def employer_dashboard():
     if not user_id:
         return redirect('/')
     positions = []
+    applicants = []
     try:
         positions = get_positions_by_employer(user_id) or []
+        from App.models.shortlist import Shortlist
+        from App.models.student import Student
+        # DEMO: If no positions, add demo data
+        if not positions:
+            positions = [
+                type('DemoPosition', (), {'id': 1, 'title': 'Software Engineer Intern', 'description': 'Work on real projects.', 'number_of_positions': 2}),
+                type('DemoPosition', (), {'id': 2, 'title': 'Marketing Assistant', 'description': 'Assist with campaigns.', 'number_of_positions': 1}),
+            ]
+        for pos in positions:
+            shortlists = Shortlist.query.filter_by(position_id=getattr(pos, 'id', 0)).all() if hasattr(pos, 'id') else []
+            # DEMO: If no shortlist, add demo applicants
+            if not shortlists:
+                if pos.id == 1:
+                    applicants.append({'name': 'demo_student1', 'status': 'shortlisted', 'position_name': pos.title})
+                if pos.id == 2:
+                    applicants.append({'name': 'demo_student2', 'status': 'shortlisted', 'position_name': pos.title})
+            for s in shortlists:
+                student = Student.query.get(s.student_id)
+                applicants.append({
+                    'name': student.username if student else 'Unknown',
+                    'status': s.status.value if hasattr(s.status, 'value') else s.status,
+                    'position_name': pos.title if hasattr(pos, 'title') else pos.name,
+                })
     except Exception:
-        positions = []
-    return render_template('EmployerDashboard.html', username=username, positions=positions)
+        positions = [
+            type('DemoPosition', (), {'id': 1, 'title': 'Software Engineer Intern', 'description': 'Work on real projects.', 'number_of_positions': 2}),
+            type('DemoPosition', (), {'id': 2, 'title': 'Marketing Assistant', 'description': 'Assist with campaigns.', 'number_of_positions': 1}),
+        ]
+        applicants = [
+            {'name': 'demo_student1', 'status': 'shortlisted', 'position_name': 'Software Engineer Intern'},
+            {'name': 'demo_student2', 'status': 'shortlisted', 'position_name': 'Marketing Assistant'},
+        ]
+    return render_template('EmployerDashboard.html', username=username, positions=positions, applicants=applicants)
 
 @auth_views.route('/StaffDashboard')
 def staff_dashboard():

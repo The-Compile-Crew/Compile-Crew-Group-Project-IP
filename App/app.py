@@ -35,13 +35,39 @@ def staff_add_to_shortlist():
         return redirect('/login')
     db = get_db()
     if request.method == 'POST':
+        from App.models.student import Student
+        from App.models.position import Position
+        from App.models.shortlist import Shortlist, DecisionStatus
+        from App.models.staff import Staff
+        from App.database import db as sqldb
         position_id = request.form.get('position_id', 1)
-        student_id = request.form.get('student_id') or request.form.get('student_user_id')
-        student_name = request.form.get('student_name') or request.form.get('name')
+        student_username = request.form.get('student_username')
         details = request.form.get('details')
-        db.execute('INSERT INTO applicants (name, student_id, details, position_id, status, applied_date) VALUES (?, ?, ?, ?, ?, ?)',
-                   (student_name, student_id, details, position_id, 'shortlisted', datetime.now().strftime('%Y-%m-%d')))
-        db.commit()
+        # Look up student and staff
+        student = Student.query.filter_by(username=student_username).first()
+        staff_user_id = session.get('user_id')
+        staff = Staff.query.filter_by(user_id=staff_user_id).first()
+        position = Position.query.get(position_id)
+        if not student or not staff or not position:
+            students = [dict(row) for row in db.execute('SELECT id, username FROM users WHERE type = "student"').fetchall()]
+            return render_template('addtoshortlist.html', students=students, position_id=position_id, error="Student, staff, or position not found.")
+        # Check if already shortlisted
+        existing = Shortlist.query.filter_by(student_id=student.id, position_id=position.id).first()
+        if existing:
+            return redirect('/dashboard')
+        shortlist = Shortlist(
+            student_id=student.id,
+            position_id=position.id,
+            staff_id=staff.id,
+            title=position.title,
+            state=None,
+            student_name=student.username,
+            student_identifier=student.student_id,
+            details=details
+        )
+        shortlist.status = DecisionStatus.shortlisted
+        sqldb.session.add(shortlist)
+        sqldb.session.commit()
         return redirect('/dashboard')
     # GET: Render form
     students = [dict(row) for row in db.execute('SELECT id, username FROM users WHERE type = "student"').fetchall()]
